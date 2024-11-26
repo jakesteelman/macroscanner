@@ -9,7 +9,121 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      meal: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      photo: {
+        Row: {
+          comments: string | null
+          created_at: string
+          id: string
+          meal_id: string | null
+          photo_url: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          meal_id?: string | null
+          photo_url: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          id?: string
+          meal_id?: string | null
+          photo_url?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_entry_id_fkey"
+            columns: ["meal_id"]
+            isOneToOne: false
+            referencedRelation: "meal"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prediction: {
+        Row: {
+          actual_name: string | null
+          fdc_id: number | null
+          id: string
+          photo_id: string | null
+          predicted_name: string | null
+        }
+        Insert: {
+          actual_name?: string | null
+          fdc_id?: number | null
+          id: string
+          photo_id?: string | null
+          predicted_name?: string | null
+        }
+        Update: {
+          actual_name?: string | null
+          fdc_id?: number | null
+          id?: string
+          photo_id?: string | null
+          predicted_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prediction_photo_id_fkey"
+            columns: ["photo_id"]
+            isOneToOne: false
+            referencedRelation: "photo"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile: {
+        Row: {
+          created_at: string
+          id: string
+          updated_at: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          updated_at?: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          updated_at?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

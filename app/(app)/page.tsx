@@ -1,6 +1,4 @@
-import FetchDataSteps from "@/components/tutorial/fetch-data-steps";
 import { createClient } from "@/utils/supabase/server";
-import { InfoIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function ProtectedPage() {
@@ -16,7 +14,7 @@ export default async function ProtectedPage() {
 
     return (
         <div className="flex-1 w-full flex flex-col gap-12">
-            <h1>Journal</h1>
+            <h1 className="text-6xl font-medium tracking-tight">Journal</h1>
         </div>
     );
 }
