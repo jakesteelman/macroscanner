@@ -9,8 +9,9 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      meal: {
+      entries: {
         Row: {
+          comment: string | null
           created_at: string
           id: string
           name: string
@@ -18,6 +19,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          comment?: string | null
           created_at?: string
           id?: string
           name: string
@@ -25,6 +27,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          comment?: string | null
           created_at?: string
           id?: string
           name?: string
@@ -33,30 +36,27 @@ export type Database = {
         }
         Relationships: []
       }
-      photo: {
+      photos: {
         Row: {
-          comments: string | null
           created_at: string
+          entry_id: string | null
           id: string
-          meal_id: string | null
           photo_url: string
           updated_at: string
           user_id: string | null
         }
         Insert: {
-          comments?: string | null
           created_at?: string
+          entry_id?: string | null
           id?: string
-          meal_id?: string | null
           photo_url: string
           updated_at?: string
           user_id?: string | null
         }
         Update: {
-          comments?: string | null
           created_at?: string
+          entry_id?: string | null
           id?: string
-          meal_id?: string | null
           photo_url?: string
           updated_at?: string
           user_id?: string | null
@@ -64,61 +64,135 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "photo_entry_id_fkey"
-            columns: ["meal_id"]
+            columns: ["entry_id"]
             isOneToOne: false
-            referencedRelation: "meal"
+            referencedRelation: "entries"
             referencedColumns: ["id"]
           },
         ]
       }
-      prediction: {
+      predictions: {
         Row: {
-          actual_name: string | null
+          confidence: number | null
+          corrected_at: string | null
+          corrected_fdc_id: number | null
+          corrected_name: string | null
+          corrected_quantity: number | null
+          corrected_unit: string | null
+          created_at: string
           fdc_id: number | null
           id: string
-          photo_id: string | null
-          predicted_name: string | null
+          is_correct: boolean | null
+          name: string
+          photo_id: string
+          quantity: number
+          unit: string
         }
         Insert: {
-          actual_name?: string | null
-          fdc_id?: number | null
-          id: string
-          photo_id?: string | null
-          predicted_name?: string | null
-        }
-        Update: {
-          actual_name?: string | null
+          confidence?: number | null
+          corrected_at?: string | null
+          corrected_fdc_id?: number | null
+          corrected_name?: string | null
+          corrected_quantity?: number | null
+          corrected_unit?: string | null
+          created_at?: string
           fdc_id?: number | null
           id?: string
-          photo_id?: string | null
-          predicted_name?: string | null
+          is_correct?: boolean | null
+          name: string
+          photo_id: string
+          quantity: number
+          unit: string
+        }
+        Update: {
+          confidence?: number | null
+          corrected_at?: string | null
+          corrected_fdc_id?: number | null
+          corrected_name?: string | null
+          corrected_quantity?: number | null
+          corrected_unit?: string | null
+          created_at?: string
+          fdc_id?: number | null
+          id?: string
+          is_correct?: boolean | null
+          name?: string
+          photo_id?: string
+          quantity?: number
+          unit?: string
         }
         Relationships: [
           {
-            foreignKeyName: "prediction_photo_id_fkey"
+            foreignKeyName: "predictions_corrected_fdc_id_fkey"
+            columns: ["corrected_fdc_id"]
+            isOneToOne: false
+            referencedRelation: "usda_foods"
+            referencedColumns: ["fdc_id"]
+          },
+          {
+            foreignKeyName: "predictions_fdc_id_fkey"
+            columns: ["fdc_id"]
+            isOneToOne: false
+            referencedRelation: "usda_foods"
+            referencedColumns: ["fdc_id"]
+          },
+          {
+            foreignKeyName: "predictions_photo_id_fkey"
             columns: ["photo_id"]
             isOneToOne: false
-            referencedRelation: "photo"
+            referencedRelation: "photos"
             referencedColumns: ["id"]
           },
         ]
       }
-      profile: {
+      usda_foods: {
+        Row: {
+          brand_owner: string | null
+          data_type: string | null
+          description: string | null
+          fdc_id: number
+          published_date: string | null
+        }
+        Insert: {
+          brand_owner?: string | null
+          data_type?: string | null
+          description?: string | null
+          fdc_id?: number
+          published_date?: string | null
+        }
+        Update: {
+          brand_owner?: string | null
+          data_type?: string | null
+          description?: string | null
+          fdc_id?: number
+          published_date?: string | null
+        }
+        Relationships: []
+      }
+      users: {
         Row: {
           created_at: string
+          email: string
           id: string
+          opt_in_marketing: boolean
+          opt_in_research: boolean
           updated_at: string
           username: string | null
         }
         Insert: {
           created_at?: string
+          email: string
           id: string
+          opt_in_marketing?: boolean
+          opt_in_research?: boolean
           updated_at?: string
           username?: string | null
         }
         Update: {
           created_at?: string
+          email?: string
           id?: string
+          opt_in_marketing?: boolean
+          opt_in_research?: boolean
           updated_at?: string
           username?: string | null
         }

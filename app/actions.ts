@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { Database } from "@/database.types";
 
 export const signUpAction = async (formData: FormData) => {
     const email = formData.get("email")?.toString();
@@ -132,3 +133,17 @@ export const signOutAction = async () => {
     await supabase.auth.signOut();
     return redirect("/sign-in");
 };
+
+export const getJournalEntries = async () => {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from("entries")
+        .select("*, photos(*)");
+
+    if (error) {
+        console.error(error.message);
+        return [];
+    }
+
+    return data;
+}
