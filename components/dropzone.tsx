@@ -3,15 +3,14 @@ import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { cn } from '@/utils/cn'
+import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
 import Image from 'next/image'
 import axios from 'axios'
 import { Textarea } from './ui/textarea'
 import { Label } from './ui/label'
-import { useRouter } from 'next/navigation'
-import { fileToBase64 } from '@/utils/utils'
-import { PredictRequest, PredictResponse } from '@/lib/types/predict'
+import { fileToBase64 } from '@/lib/utils'
+import { PredictRequest, PredictResponse } from '@/types/predict'
 import { Input } from './ui/input'
 
 interface FileWithPreview extends File {
@@ -23,8 +22,6 @@ export function Dropzone() {
     const [comment, setComment] = useState<string>()
     const [name, setName] = useState<string>()
     const [uploading, setUploading] = useState(false)
-    const router = useRouter()
-
     const [result, setResult] = useState<PredictResponse>()
 
     const onDrop = useCallback((acceptedFiles: File[]) => {

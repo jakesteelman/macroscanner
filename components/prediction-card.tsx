@@ -3,11 +3,12 @@ import { Tables } from '@/database.types'
 import React, { useCallback, useState } from 'react'
 import { Button } from './ui/button'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'
-import { markPredictionAsCorrect, markPredictionIncorrect } from '@/app/(app)/_actions/predictions';
+import { markPredictionAsCorrect, markPredictionIncorrect } from '@/actions/predictions';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
+
 import { Input } from './ui/input';
 import PredictionCardNutrition from './prediction-nutrition';
+import { cn } from '@/lib/utils';
 
 type Props = {
     prediction: Tables<'predictions'> & {
@@ -41,7 +42,7 @@ const PredictionCard = ({ prediction }: Props) => {
                 setPendingFeedback(undefined)
             }
         },
-        [])
+        [prediction.id])
 
     const handleMarkAsIncorrect = useCallback(
         () => setPendingFeedback('incorrect'),
@@ -70,7 +71,7 @@ const PredictionCard = ({ prediction }: Props) => {
                 return toast.error('Quantity must be a number');
             }
 
-            const correctedPrediction = await markPredictionIncorrect(prediction.id, updates);
+            await markPredictionIncorrect(prediction.id, updates);
         },
         [corrections, prediction])
 

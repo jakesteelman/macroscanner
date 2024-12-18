@@ -1,11 +1,9 @@
-import { Suspense } from 'react'
-import { getEntry } from '../../_actions/entries'
+import { Suspense } from 'react';
+import { getEntry } from '../../../../actions/entries';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import Image from 'next/image';
 import SupabaseImage from '@/components/supabase-image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { InfoIcon, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { InfoIcon } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import PredictionCard from '@/components/prediction-card';
 import { CopyToClipboard } from '@/components/copy-to-clipboard';

@@ -1,7 +1,7 @@
 "use server"
-import { Database, TablesInsert } from "@/database.types"
-import { createClient } from "@/utils/supabase/server"
-import { getUser } from "./user"
+import { TablesInsert } from "@/database.types"
+import { createClient } from "@/lib/supabase/server"
+import { getUser } from "@/actions/user"
 
 export async function getEntry(id: string) {
     const supabase = await createClient()

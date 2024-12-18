@@ -1,6 +1,6 @@
 "use server"
 import { Database, TablesInsert, TablesUpdate } from "@/database.types"
-import { createClient } from "@/utils/supabase/server"
+import { createClient } from "@/lib/supabase/server"
 import { getUser } from "./user"
 
 export async function createPredictions(prediction: TablesInsert<'predictions'>[]) {

@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import Image, { ImageProps } from 'next/image'
 import React from 'react'
 
@@ -38,6 +38,7 @@ const SupabaseImage = async ({ path, supabaseOptions, ...props }: Props) => {
         <Image
             src={data.signedUrl}
             {...props}
+            alt={props.alt}
         />
     )
 }

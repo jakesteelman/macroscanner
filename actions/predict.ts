@@ -1,8 +1,8 @@
 // app/(app)/_actions/predict.ts
 "use server"
-import { LanguageModelUsage } from '@/lib/types/ai.types';
-import { chooseUSDAItemPrompt, predictPrompt } from '@/utils/ai/prompt';
-import { PredictionSchema, USDAChosenItemSchema } from '@/utils/ai/schemas';
+import { LanguageModelUsage } from '@/types/ai.types';
+import { chooseUSDAItemPrompt, predictPrompt } from '@/lib/ai/prompt';
+import { PredictionSchema, USDAChosenItemSchema } from '@/lib/ai/schemas';
 import { openai } from '@ai-sdk/openai';
 import { CoreSystemMessage, CoreUserMessage, generateObject, ImagePart, TextPart } from 'ai';
 import { z } from 'zod';

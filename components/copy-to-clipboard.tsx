@@ -12,7 +12,8 @@ interface CopyToClipboardProps {
 
 export function CopyToClipboard({ content, duration = 1000 }: CopyToClipboardProps) {
     const [copied, setCopied] = useState(false);
-    const [copiedText, copy] = useCopyToClipboard();
+    // eslint-disable-next-line
+    const [_, copy] = useCopyToClipboard();
 
     const handleCopy = async () => {
         await copy(content);

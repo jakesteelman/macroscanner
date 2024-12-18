@@ -1,5 +1,5 @@
 import { Tables } from '@/database.types';
-import { serving } from '@/utils/conversion';
+import { serving } from '@/lib/utils/conversion';
 import MacroPieChart from './MacroPieChart';
 
 type Props = {

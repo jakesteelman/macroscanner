@@ -1,7 +1,7 @@
 "use server";
 
 import { Tables } from "@/database.types";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import OpenAI from "openai";
 
 /**

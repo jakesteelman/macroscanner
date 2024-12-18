@@ -1,17 +1,17 @@
 // api/v1/predict/route.ts
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { uploadPhotos } from "@/app/(app)/_actions/photos";
-import { createBlankEntry, getEntry } from "@/app/(app)/_actions/entries";
-import { chooseUSDAItem, predict } from "@/app/(app)/_actions/predict";
-import { PredictRequest, PredictResponse } from "@/lib/types/predict";
-import { createPredictions } from "@/app/(app)/_actions/predictions";
-import { LanguageModelUsage } from "@/lib/types/ai.types";
+import { uploadPhotos } from "@/actions/photos";
+import { createBlankEntry, getEntry } from "@/actions/entries";
+import { chooseUSDAItem, predict } from "@/actions/predict";
+import { PredictRequest, PredictResponse } from "@/types/predict";
+import { createPredictions } from "@/actions/predictions";
+import { LanguageModelUsage } from "@/types/ai.types";
 import { z } from "zod";
-import { PredictionSchema } from "@/utils/ai/schemas";
-import { Tables, TablesInsert } from "@/database.types";
+import { PredictionSchema } from "@/lib/ai/schemas";
+import { TablesInsert } from "@/database.types";
 import OpenAI from "openai";
-import { getFoodItem, searchUSDAFoods } from "@/app/(app)/_actions/usda";
+import { searchUSDAFoods } from "@/actions/usda";
 
 
 export async function POST(request: Request) {
@@ -71,7 +71,11 @@ export async function POST(request: Request) {
         }
 
         // Embed the predictions
-        const { data: embeddingData, usage: embeddingUsage } = await openai.embeddings.create({
+        const {
+            data: embeddingData,
+            // TODO: Handle usage data.
+            // usage: embeddingUsage 
+        } = await openai.embeddings.create({
             dimensions: 1536,
             model: 'text-embedding-3-small',
             input: result.predictions.map(prediction => prediction.name)
@@ -88,7 +92,7 @@ export async function POST(request: Request) {
         const mappedPredictions: TablesInsert<"predictions">[] = await Promise.all(
             predictions.map(async (prediction) => {
 
-                let basePrediction: TablesInsert<'predictions'> = {
+                const basePrediction: TablesInsert<'predictions'> = {
                     name: prediction.name,
                     quantity: prediction.amount,
                     unit: prediction.unit,
@@ -99,7 +103,11 @@ export async function POST(request: Request) {
                 console.debug('Searching for:', prediction.name);
                 console.debug("Embedding length", prediction.embedding?.length);
 
-                const { matches, embedding_usage } = await searchUSDAFoods({
+                const {
+                    matches,
+                    // embedding_usage
+                    // TODO: Handle usage data.
+                } = await searchUSDAFoods({
                     query_embedding: prediction.embedding,
                     match_count: 10,
                     match_threshold: 0.4
@@ -156,7 +164,7 @@ export async function POST(request: Request) {
         )
 
         try {
-            const createdPredictions = await createPredictions(mappedPredictions)
+            await createPredictions(mappedPredictions)
         } catch (error) {
             console.error('Error creating predictions:', error);
             throw error;

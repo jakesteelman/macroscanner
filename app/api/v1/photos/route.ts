@@ -1,5 +1,5 @@
 // app/api/v1/photos/route.ts
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import sharp from "sharp";
 
 export async function POST(request: Request) {
@@ -37,15 +37,10 @@ export async function POST(request: Request) {
     }));
 
     for (const storedPhoto of resizedPhotos) {
-        const {
-            data: photoData,
-            error: photoError
-        } = await supabase.from('photos').insert({
+        await supabase.from('photos').insert({
             user_id: user.id,
             photo_url: storedPhoto.fullPath,
 
         });
-
-
     }
 }

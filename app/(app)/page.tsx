@@ -1,8 +1,8 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
-import { getEntries } from "./_actions/entries";
+import { getEntries } from "../../actions/entries";
 import { Dropzone } from "@/components/dropzone";
 import SupabaseImage from "@/components/supabase-image";
 
