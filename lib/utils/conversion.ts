@@ -1,4 +1,4 @@
-import { Tables } from '@/database.types';
+import { Tables } from '@/types/database.types';
 import convert, { Unit } from 'convert';
 
 type USDAFood = Omit<Tables<'usda_foods'>, 'embedding'>;

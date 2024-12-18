@@ -1,5 +1,5 @@
 "use server"
-import { Database } from "@/database.types"
+import { Database } from "@/types/database.types"
 import { createClient } from "@/lib/supabase/server"
 
 export async function getUser() {

@@ -1,5 +1,5 @@
 "use client";
-import { Tables } from '@/database.types'
+import { Tables } from '@/types/database.types'
 import React, { useCallback, useState } from 'react'
 import { Button } from './ui/button'
 import { ThumbsDown, ThumbsUp } from 'lucide-react'

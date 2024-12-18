@@ -1,4 +1,4 @@
-import { Tables } from "@/database.types";
+import { Tables } from "@/types/database.types";
 
 export interface PredictRequest {
     /** Array of base64 strings representing the uploaded photos */

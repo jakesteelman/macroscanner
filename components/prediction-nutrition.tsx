@@ -1,4 +1,4 @@
-import { Tables } from '@/database.types';
+import { Tables } from '@/types/database.types';
 import { serving } from '@/lib/utils/conversion';
 import MacroPieChart from './MacroPieChart';
 

@@ -1,5 +1,5 @@
 "use server"
-import { Database, TablesInsert, TablesUpdate } from "@/database.types"
+import { Database, TablesInsert, TablesUpdate } from "@/types/database.types"
 import { createClient } from "@/lib/supabase/server"
 import { getUser } from "./user"
 

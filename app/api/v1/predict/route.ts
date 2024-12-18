@@ -9,7 +9,7 @@ import { createPredictions } from "@/actions/predictions";
 import { LanguageModelUsage } from "@/types/ai.types";
 import { z } from "zod";
 import { PredictionSchema } from "@/lib/ai/schemas";
-import { TablesInsert } from "@/database.types";
+import { TablesInsert } from "@/types/database.types";
 import OpenAI from "openai";
 import { searchUSDAFoods } from "@/actions/usda";
 
