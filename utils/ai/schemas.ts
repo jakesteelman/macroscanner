@@ -19,3 +19,13 @@ export const PredictionSchema = z.object({
             .describe('Prediction for a single food item in this photo'))
 })
     .describe('Prediction schema for a single photo, including all food items detected and their nutritional information');
+
+export const USDAChosenItemSchema = z.object({
+    name: z
+        .string()
+        .describe('Name of the chosen food item.'),
+    fdcId: z
+        .number()
+        .describe('USDA FoodData Central ID of the chosen food item.'),
+})
+    .describe('Schema for the chosen USDA FoodData Central ID for a food item.');

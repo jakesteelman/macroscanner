@@ -42,6 +42,8 @@ export async function uploadPhotos({ images, entryId }: UploadPhotosParams) {
 
             // Process with Sharp
             const resizedBuffer = await sharp(imageBuffer)
+                .withMetadata()
+                .rotate()
                 .resize({ width: 1600, height: 1600, fit: 'inside' })
                 .jpeg({ quality: 80 })
                 .toBuffer();

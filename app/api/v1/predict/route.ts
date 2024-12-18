@@ -2,13 +2,21 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 import { uploadPhotos } from "@/app/(app)/_actions/photos";
-import { createBlankEntry } from "@/app/(app)/_actions/entries";
-import { predict } from "@/app/(app)/_actions/predict";
+import { createBlankEntry, getEntry } from "@/app/(app)/_actions/entries";
+import { chooseUSDAItem, predict } from "@/app/(app)/_actions/predict";
 import { PredictRequest, PredictResponse } from "@/lib/types/predict";
 import { createPredictions } from "@/app/(app)/_actions/predictions";
+import { LanguageModelUsage } from "@/lib/types/ai.types";
+import { z } from "zod";
+import { PredictionSchema } from "@/utils/ai/schemas";
+import { Tables, TablesInsert } from "@/database.types";
+import OpenAI from "openai";
+import { getFoodItem, searchUSDAFoods } from "@/app/(app)/_actions/usda";
+
 
 export async function POST(request: Request) {
     const supabase = await createClient();
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     try {
         const { images, name, comment } = await request.json() as PredictRequest;
@@ -46,55 +54,132 @@ export async function POST(request: Request) {
             throw error;
         }
 
-        let result;
+        let result: z.infer<typeof PredictionSchema>, prediction_usage: LanguageModelUsage;
+
         try {
-            result = await predict({
+            const { object, usage } = await predict({
                 images: processedPhotos.map(photo => photo.base64),
                 comment
             });
+
+            result = object;
+            prediction_usage = usage;
+
         } catch (error) {
             console.error('Error predicting:', error);
             throw error;
         }
 
-        let createdPredictions;
-        try {
-            const predictions = result.predictions;
-            createdPredictions = await createPredictions(
-                predictions.map(prediction => ({
+        // Embed the predictions
+        const { data: embeddingData, usage: embeddingUsage } = await openai.embeddings.create({
+            dimensions: 1536,
+            model: 'text-embedding-3-small',
+            input: result.predictions.map(prediction => prediction.name)
+        })
+
+        const predictions = result.predictions.map((prediction, index) => ({
+            ...prediction,
+            embedding: embeddingData.find(embedding => embedding.index === index)?.embedding
+        }))
+
+        // Now search USDA for each item, get the FDC ID and name of the top 5 results,
+        // then ask GPT to self evaluate. We can also pass the photo referenced by the prediction
+        // to the GPT model to help improve accuracy.
+        const mappedPredictions: TablesInsert<"predictions">[] = await Promise.all(
+            predictions.map(async (prediction) => {
+
+                let basePrediction: TablesInsert<'predictions'> = {
                     name: prediction.name,
-                    unit: prediction.unit,
                     quantity: prediction.amount,
-                    photo_id: processedPhotos[prediction.photoIndex].id
-                }))
-            );
+                    unit: prediction.unit,
+                    photo_id: processedPhotos[prediction.photoIndex].id,
+                    fdc_id: undefined
+                }
+
+                console.debug('Searching for:', prediction.name);
+                console.debug("Embedding length", prediction.embedding?.length);
+
+                const { matches, embedding_usage } = await searchUSDAFoods({
+                    query_embedding: prediction.embedding,
+                    match_count: 10,
+                    match_threshold: 0.4
+                });
+
+                if (!matches) {
+                    throw new Error(`Failed to find matches for ${prediction.name}`);
+                }
+
+                console.debug("Possible matches:", matches);
+
+                switch (matches.length) {
+                    case 0:
+                        console.debug("No matches found for:", prediction.name);
+                        break;
+                    case 1:
+                        basePrediction.fdc_id = matches[0].fdc_id;
+                        console.log("Chose USDA item: ", matches[0].name, ' as best match, with FDC ID: ', matches[0].fdc_id);
+                        break;
+                    default:
+
+                        // Get GPT's opinion on the best match
+                        const { choice, usage } = await chooseUSDAItem({
+                            options: matches.map(match => ({
+                                name: match.name,
+                                fdcId: match.fdc_id
+                            })),
+                            target: prediction.name,
+                            images: processedPhotos.map(p => p.base64)
+                        });
+
+                        prediction_usage.promptTokens = usage.promptTokens;
+                        prediction_usage.completionTokens = usage.completionTokens;
+                        prediction_usage.totalTokens = usage.totalTokens;
+
+                        if (!choice) {
+                            break;
+                        }
+
+                        if (choice.fdcId === 0 || choice.name.toLowerCase() === "no match") {
+                            console.log("No match found for: ", prediction.name);
+                            break;
+                        }
+
+                        basePrediction.fdc_id = choice.fdcId;
+                        console.log("Chose USDA item: ", choice.name, ' as best match, with FDC ID: ', choice.fdcId);
+
+                        break;
+
+                }
+
+                return basePrediction;
+            })
+        )
+
+        try {
+            const createdPredictions = await createPredictions(mappedPredictions)
         } catch (error) {
             console.error('Error creating predictions:', error);
             throw error;
         }
 
-        return NextResponse.json<PredictResponse>({
-            success: true,
-            result: {
-                id: entry.id,
-                name: entryName,
-                photos: processedPhotos.map((photo, index) => ({
-                    id: photo.id,
-                    url: photo.photo_url,
-                    name: `${photo.id}.jpg`,
-                    predictions: result.predictions.filter(prediction => prediction.photoIndex === index).map(prediction => ({
-                        name: prediction.name,
-                        amount: prediction.amount,
-                        unit: prediction.unit,
-                    }))
-                }))
-            }
-        });
+        // Finally, select out the whole thing
+        try {
+            const entryResult = await getEntry(entry.id);
+
+            return NextResponse.json<PredictResponse>({
+                success: true,
+                result: entryResult
+            });
+
+        } catch (error) {
+            console.error('Error fetching full entry:', error);
+            throw error;
+        }
 
     } catch (error) {
-        console.error('Upload error:', error);
+        console.error('ERROR in PREDICT:', error);
         return NextResponse.json<PredictResponse>(
-            { success: false, error: "Failed to process upload" },
+            { success: false, error: "Failed to predict for entry." },
             { status: 500 }
         );
     }

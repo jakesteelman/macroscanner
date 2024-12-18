@@ -7,9 +7,12 @@ import { markPredictionAsCorrect, markPredictionIncorrect } from '@/app/(app)/_a
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { Input } from './ui/input';
+import PredictionCardNutrition from './prediction-nutrition';
 
 type Props = {
-    prediction: Tables<'predictions'>
+    prediction: Tables<'predictions'> & {
+        usda_foods?: Omit<Tables<'usda_foods'>, 'embedding'> | null
+    }
 }
 
 const PredictionCard = ({ prediction }: Props) => {
@@ -105,6 +108,7 @@ const PredictionCard = ({ prediction }: Props) => {
                     </Button>
                 </div>
             </div>
+            <PredictionCardNutrition prediction={prediction} />
             {pendingFeedback === 'incorrect' && (
                 <div className='flex flex-col items-stretch justify-start gap-2'>
                     <h4 className='font-semibold'>

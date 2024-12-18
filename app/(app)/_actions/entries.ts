@@ -9,7 +9,7 @@ export async function getEntry(id: string) {
 
     const { data, error } = await supabase
         .from('entries')
-        .select('*, photos(*, predictions(*))')
+        .select('*, photos(*, predictions(*, usda_foods!predictions_fdc_id_fkey(fdc_id,name,kcal,fat,fat_sat,fat_trans,fat_mono,fat_poly,carbs,sugar,sugar_added,fiber,protein,cholesterol,sodium,alcohol,caffeine,density,created_at,updated_at,data_type)))')
         .eq('id', id)
         .order('created_at', { ascending: false })
         .order('created_at', { referencedTable: 'photos', ascending: false })

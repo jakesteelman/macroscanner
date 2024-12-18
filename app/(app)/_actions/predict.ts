@@ -1,7 +1,8 @@
 // app/(app)/_actions/predict.ts
 "use server"
-import { predictPrompt } from '@/utils/ai/prompt';
-import { PredictionSchema } from '@/utils/ai/schemas';
+import { LanguageModelUsage } from '@/lib/types/ai.types';
+import { chooseUSDAItemPrompt, predictPrompt } from '@/utils/ai/prompt';
+import { PredictionSchema, USDAChosenItemSchema } from '@/utils/ai/schemas';
 import { openai } from '@ai-sdk/openai';
 import { CoreSystemMessage, CoreUserMessage, generateObject, ImagePart, TextPart } from 'ai';
 import { z } from 'zod';
@@ -13,7 +14,7 @@ type PredictRequest = {
     comment?: string;
 };
 
-export async function predict({ images, comment }: PredictRequest): Promise<z.infer<typeof PredictionSchema>> {
+export async function predict({ images, comment }: PredictRequest): Promise<{ object: z.infer<typeof PredictionSchema>, usage: LanguageModelUsage }> {
 
     const imageContentParts: ImagePart[] = images.map((image) => ({
         type: "image",
@@ -38,7 +39,7 @@ export async function predict({ images, comment }: PredictRequest): Promise<z.in
         content: predictPrompt
     };
 
-    const { object } = await generateObject({
+    const { object, usage } = await generateObject({
         model: openai('gpt-4o-mini'),
         schema: PredictionSchema,
         messages: [
@@ -47,5 +48,77 @@ export async function predict({ images, comment }: PredictRequest): Promise<z.in
         ]
     });
 
-    return object;
+    return {
+        object,
+        usage
+    };
+}
+
+type ChooseUSDAItemRequest = {
+    /** Array of possible food items to choose from */
+    options: {
+        /** Name of the food item in USDA DB */
+        name: string;
+        /** USDA FoodData Central ID */
+        fdcId: number;
+    }[];
+    /** Name of the target food item to match. */
+    target: string;
+    /** Array of base64 strings representing the photos where the food is believed to be contained. */
+    images: string[];
+    /** Optional user-supplied comment about the meal or entry in general. */
+    comment?: string;
+};
+
+/**
+ * 
+ * @param param0 
+ * @returns 
+ */
+export async function chooseUSDAItem({
+    options,
+    target,
+    images,
+    comment,
+}: ChooseUSDAItemRequest): Promise<{
+    choice: z.infer<typeof USDAChosenItemSchema>,
+    usage: LanguageModelUsage
+}> {
+
+    const imageContentParts: ImagePart[] = images.map((image) => ({
+        type: "image",
+        image: image
+    }));
+
+    const userCommentPart: TextPart | undefined = comment ? {
+        type: "text",
+        text: comment
+    } : undefined;
+
+    const userMessage: CoreUserMessage = {
+        role: "user",
+        content: [
+            userCommentPart,
+            ...imageContentParts
+        ].filter((part): part is TextPart | ImagePart => part !== undefined)
+    };
+
+    const systemMessage: CoreSystemMessage = {
+        role: "system",
+        content: chooseUSDAItemPrompt(options, target)
+    };
+
+    const { object, usage } = await generateObject({
+        model: openai('gpt-4o-mini'),
+        schema: USDAChosenItemSchema,
+        messages: [
+            systemMessage,
+            userMessage
+        ]
+    });
+
+    return {
+        choice: object,
+        usage
+    };
 }
