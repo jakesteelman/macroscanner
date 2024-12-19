@@ -1,8 +1,8 @@
 import { Tables } from "@/types/database.types";
 
 export interface PredictRequest {
-    /** Array of base64 strings representing the uploaded photos */
-    images: Array<string>; // base64 encoded images created by calling URL.createObjectURL(file) from a JS frontend
+    /** Array of file IDs representing the uploaded photos */
+    fileIds: string[];
     /** Optional name of the meal. */
     name?: string;
     /** Optional user-supplied comment about the meal or entry in general. */

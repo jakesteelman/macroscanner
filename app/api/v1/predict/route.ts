@@ -1,25 +1,21 @@
 // api/v1/predict/route.ts
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { uploadPhotos } from "@/actions/photos";
+import { uploadPhotos, getUploadedPhoto } from "@/actions/photos";
 import { createBlankEntry, getEntry } from "@/actions/entries";
 import { chooseUSDAItem, predict } from "@/actions/predict";
 import { PredictRequest, PredictResponse } from "@/types/predict";
 import { createPredictions } from "@/actions/predictions";
-import { LanguageModelUsage } from "@/types/ai.types";
-import { z } from "zod";
-import { PredictionSchema } from "@/lib/ai/schemas";
 import { TablesInsert } from "@/types/database.types";
 import OpenAI from "openai";
 import { searchUSDAFoods } from "@/actions/usda";
-
 
 export async function POST(request: Request) {
     const supabase = await createClient();
     const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     try {
-        const { images, name, comment } = await request.json() as PredictRequest;
+        const { fileIds, name, comment } = await request.json() as PredictRequest;
 
         // Authenticate user
         const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -30,75 +26,71 @@ export async function POST(request: Request) {
             );
         }
 
-        let entry;
         const entryName = name ?? `Entry ${new Date().toLocaleString()}`;
-        try {
-            entry = await createBlankEntry({
-                user_id: user.id,
-                name: entryName,
-                comment: comment
-            });
-        } catch (error) {
-            console.error('Error creating blank entry:', error);
-            throw error;
-        }
 
-        let processedPhotos;
-        try {
-            processedPhotos = await uploadPhotos({
-                images,
-                entryId: entry.id
-            });
-        } catch (error) {
-            console.error('Error uploading photos:', error);
-            throw error;
-        }
+        const entry = await createBlankEntry({
+            user_id: user.id,
+            name: entryName,
+            comment: comment
+        });
 
-        let result: z.infer<typeof PredictionSchema>, prediction_usage: LanguageModelUsage;
+        const processedPhotos = await Promise.all(
+            fileIds.map(async (fileId) => {
+                const photo = await getUploadedPhoto(user.id, fileId);
 
-        try {
-            const { object, usage } = await predict({
-                images: processedPhotos.map(photo => photo.base64),
-                comment
-            });
+                // Create a record in the 'photos' table
+                const { data: photoRecord, error: photoError } = await supabase
+                    .from('photos')
+                    .insert({
+                        id: fileId, // Use the same fileId as the photo ID
+                        user_id: user.id,
+                        photo_url: `${user.id}/${fileId}.jpg`,
+                        entry_id: entry.id
+                    })
+                    .select()
+                    .single();
 
-            result = object;
-            prediction_usage = usage;
+                if (photoError || !photoRecord) {
+                    throw new Error('Failed to create photo record');
+                }
 
-        } catch (error) {
-            console.error('Error predicting:', error);
-            throw error;
-        }
+                return {
+                    id: fileId,
+                    base64: photo.base64
+                };
+            })
+        );
+
+        const { object: result, usage: prediction_usage } = await predict({
+            images: processedPhotos.map(photo => photo.base64),
+            comment
+        });
 
         // Embed the predictions
         const {
             data: embeddingData,
             // TODO: Handle usage data.
-            // usage: embeddingUsage 
+            /* usage: embeddingUsage */
         } = await openai.embeddings.create({
             dimensions: 1536,
             model: 'text-embedding-3-small',
-            input: result.predictions.map(prediction => prediction.name)
-        })
+            input: result.predictions.map(({ name }) => name)
+        });
 
-        const predictions = result.predictions.map((prediction, index) => ({
+        const predictions = result.predictions.map((prediction, i) => ({
             ...prediction,
-            embedding: embeddingData.find(embedding => embedding.index === index)?.embedding
-        }))
+            embedding: embeddingData.find(({ index }) => index === i)?.embedding
+        }));
 
-        // Now search USDA for each item, get the FDC ID and name of the top 5 results,
-        // then ask GPT to self evaluate. We can also pass the photo referenced by the prediction
-        // to the GPT model to help improve accuracy.
         const mappedPredictions: TablesInsert<"predictions">[] = await Promise.all(
             predictions.map(async (prediction) => {
-
                 const basePrediction: TablesInsert<'predictions'> = {
                     name: prediction.name,
                     quantity: prediction.amount,
                     unit: prediction.unit,
                     photo_id: processedPhotos[prediction.photoIndex].id,
                     fdc_id: undefined
-                }
+                };
 
                 console.debug('Searching for:', prediction.name);
                 console.debug("Embedding length", prediction.embedding?.length);
@@ -161,33 +153,32 @@ export async function POST(request: Request) {
 
                 return basePrediction;
             })
-        )
+        );
 
-        try {
-            await createPredictions(mappedPredictions)
-        } catch (error) {
-            console.error('Error creating predictions:', error);
-            throw error;
-        }
+        console.log("creating predictions", mappedPredictions)
+        await createPredictions(mappedPredictions);
 
-        // Finally, select out the whole thing
-        try {
-            const entryResult = await getEntry(entry.id);
+        const entryResult = await getEntry(entry.id);
 
-            return NextResponse.json<PredictResponse>({
-                success: true,
-                result: entryResult
-            });
-
-        } catch (error) {
-            console.error('Error fetching full entry:', error);
-            throw error;
-        }
+        return NextResponse.json<PredictResponse>({
+            success: true,
+            result: entryResult
+        });
 
     } catch (error) {
-        console.error('ERROR in PREDICT:', error);
+        console.error("Error in POST /api/v1/predict:", error);
+
+        // Handle different error types if necessary
+        // if (error instanceof SomeSpecificError) {
+        //     return NextResponse.json<PredictResponse>(
+        //         { success: false, error: error.message },
+        //         { status: 400 }
+        //     );
+        // }
+
+        // General error response
         return NextResponse.json<PredictResponse>(
-            { success: false, error: "Failed to predict for entry." },
+            { success: false, error: "An unexpected error occurred. Details: " + JSON.stringify(error) },
             { status: 500 }
         );
     }

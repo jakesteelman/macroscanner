@@ -85,3 +85,31 @@ export async function uploadPhotos({ images, entryId }: UploadPhotosParams) {
 
     return processedPhotos;
 };
+
+/**
+ * Retrieves an uploaded photo from Supabase Storage and returns its base64 representation.
+ * @param userId - The user's ID.
+ * @param fileId - The ID of the uploaded file.
+ * @returns - An object containing the photo's base64 data.
+ */
+export async function getUploadedPhoto(userId: string, fileId: string) {
+    const supabase = await createClient();
+
+    // Correct the bucket name to 'images' and include the '.jpg' extension
+    const { data: fileData, error: downloadError } = await supabase
+        .storage
+        .from('images')
+        .download(`${userId}/${fileId}.jpg`);
+
+    if (downloadError || !fileData) {
+        throw new Error('Failed to retrieve uploaded photo');
+    }
+
+    // Convert the file data to base64
+    const arrayBuffer = await fileData.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+
+    return {
+        base64
+    };
+}

@@ -12,9 +12,16 @@ import { Label } from './ui/label'
 import { fileToBase64 } from '@/lib/utils'
 import { PredictRequest, PredictResponse } from '@/types/predict'
 import { Input } from './ui/input'
+import { v4 as uuidv4 } from 'uuid';
 
 interface FileWithPreview extends File {
+    id: string;
     preview: string;
+    uploading: boolean;
+    uploaded: boolean;
+    uploadProgress: number;
+    error?: string;
+    fileId?: string;
 }
 
 export function Dropzone() {
@@ -24,14 +31,84 @@ export function Dropzone() {
     const [uploading, setUploading] = useState(false)
     const [result, setResult] = useState<PredictResponse>()
 
+    const uploadFile = async (file: FileWithPreview) => {
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await axios.post('/api/v1/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
+                onUploadProgress: (progressEvent) => {
+                    if (progressEvent.total) {
+                        const progress = Math.round(
+                            (progressEvent.loaded * 100) / progressEvent.total
+                        );
+
+                        setFiles(prevFiles =>
+                            prevFiles.map(f => {
+                                if (f.id === file.id) {
+                                    return {
+                                        ...f,
+                                        uploadProgress: progress,
+                                    };
+                                }
+                                return f;
+                            })
+                        );
+                    }
+                }
+            });
+
+            setFiles(prevFiles =>
+                prevFiles.map(f => {
+                    if (f.id === file.id) {
+                        return {
+                            ...f,
+                            uploading: false,
+                            uploaded: true,
+                            uploadProgress: 100,
+                            fileId: response.data.fileId
+                        };
+                    }
+                    return f;
+                })
+            );
+        } catch (error) {
+            setFiles(prevFiles =>
+                prevFiles.map(f => {
+                    if (f.id === file.id) {
+                        return {
+                            ...f,
+                            uploading: false,
+                            uploadProgress: 0,
+                            error: 'Upload failed'
+                        };
+                    }
+                    return f;
+                })
+            );
+            console.error(error);
+        }
+    };
+
     const onDrop = useCallback((acceptedFiles: File[]) => {
-        setFiles(prevFiles => {
-            const newFiles = acceptedFiles.map(file => Object.assign(file, {
-                preview: URL.createObjectURL(file)
-            }))
-            const updatedFiles = [...prevFiles, ...newFiles].slice(0, 10) // Limit to 10 files
-            return updatedFiles
-        })
+        const newFiles = acceptedFiles.map(file => {
+            const fileWithPreview: FileWithPreview = Object.assign(file, {
+                id: uuidv4(),
+                preview: URL.createObjectURL(file),
+                uploading: true,
+                uploaded: false,
+                uploadProgress: 0
+            });
+
+            uploadFile(fileWithPreview);
+
+            return fileWithPreview;
+        });
+
+        setFiles(prevFiles => [...prevFiles, ...newFiles].slice(0, 10));
     }, [])
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -42,39 +119,41 @@ export function Dropzone() {
         maxFiles: 10
     })
 
-    const removeFile = (file: File) => {
-        setFiles(prevFiles => prevFiles.filter(f => f !== file))
+    const removeFile = (file: FileWithPreview) => {
+        setFiles(prevFiles => prevFiles.filter(f => f.id !== file.id))
     }
 
     const uploadFiles = async () => {
-        if (files.length === 0) return
+        if (files.length === 0) return;
+        if (files.some(file => file.uploading || !file.uploaded)) {
+            alert('Please wait for all files to finish uploading.');
+            return;
+        }
 
-        setUploading(true)
+        setUploading(true);
 
-        // Send base64 images to /api/v1/predict
         try {
-            const images = await Promise.all(files.map(file => fileToBase64(file as File)))
+            const fileIds = files
+                .map(file => file.fileId)
+                .filter((fileId): fileId is string => !!fileId);
+
             const body: PredictRequest = {
-                images,
+                fileIds,
                 comment,
-                name,
-                // entryId: ''
-            }
+                name
+            };
 
-            const response = await axios
-                .post<PredictResponse>('/api/v1/predict', body)
+            const response = await axios.post<PredictResponse>('/api/v1/predict', body);
 
-            setFiles([])
-
-            setResult(response.data)
+            setFiles([]);
+            setResult(response.data);
 
         } catch (error) {
-            console.error(error)
-
+            console.error(error);
         } finally {
-            setUploading(false)
+            setUploading(false);
         }
-    }
+    };
 
     return (
         <div className="w-full max-w-md mx-auto">
@@ -101,15 +180,29 @@ export function Dropzone() {
                     <div className="mt-4">
                         <ScrollArea className="w-full rounded-md border">
                             <div className="flex flex-row items-center justify-start gap-4 p-4">
-                                {files.map((file, index) => (
-                                    <div key={index} className="relative group h-28 w-auto flex-shrink-0">
+                                {files.map((file) => (
+                                    <div key={file.id} className="relative group h-28 w-auto flex-shrink-0">
                                         <Image
                                             src={file.preview}
-                                            alt={`Food image ${index + 1}`}
+                                            alt={`Food image`}
                                             width={150}
                                             height={150}
                                             className="relative w-auto h-28 rounded-md object-cover"
                                         />
+                                        {(file.uploading || file.error) && (
+                                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                                                {file.uploading && (
+                                                    <div className="text-white text-sm">
+                                                        Uploading... {file.uploadProgress}%
+                                                    </div>
+                                                )}
+                                                {file.error && (
+                                                    <div className="text-red-500 text-sm">
+                                                        {file.error}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                         <Button
                                             size="sm"
                                             variant='secondary'
