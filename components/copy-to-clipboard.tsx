@@ -23,7 +23,7 @@ export function CopyToClipboard({ content, duration = 1000 }: CopyToClipboardPro
 
     return (
         <Button
-            variant="ghost"
+            variant="outline"
             size="sm"
             className='gap-1.5'
             onClick={handleCopy}

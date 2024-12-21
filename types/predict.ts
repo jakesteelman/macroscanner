@@ -16,12 +16,6 @@ export interface PredictResponse {
     success: boolean;
     /** If unsuccessful, the error encountered. */
     error?: string;
-    /** If successful, the prediction result. */
-    result?: Tables<'entries'> & {
-        photos: (Tables<'photos'> & {
-            predictions: (Tables<'predictions'> & {
-                usda_foods?: Omit<Tables<'usda_foods'>, "embedding"> | null
-            })[];
-        })[];
-    };
+    /** If successful, the ID of the completed entry. */
+    entryId?: string;
 }

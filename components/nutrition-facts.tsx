@@ -41,6 +41,7 @@ const NutritionFacts: React.FC<NutritionFactsProps> = ({
 }) => {
     return (
         <div>
+            {/* TODO: FEAT - Make it downloadable. Add a disclaimer. */}
             <div className="w-full max-w-md mx-auto bg-background p-4 border-2 border-foreground font-sans">
                 <h2 className="text-3xl font-bold mb-1 text-left">Nutrition Facts</h2>
                 <div className="border-b-8 border-foreground mb-1"></div>

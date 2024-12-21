@@ -30,15 +30,10 @@ const PredictionCardNutrition = ({ prediction }: Props) => {
 
     return (
         <div className='w-full flex flex-row items-center justify-start gap-2'>
-            <MacroPieChart size={32} thickness={7} fat={fat} carb={carbs} protein={protein} />
-            <div className='w-full flex flex-col items-start justify-start'>
-                <span className='font-semibold -mb-0.5'>{(totalCalories || computedKcal)} kcal</span>
-                <div className=' flex flex-row items-center justify-start gap-3 text-sm'>
-                    <span><span className='text-[#FF9500]  font-semibold'>Fat</span>{' '}<span>{totalFat.toFixed(0)}g</span></span>
-                    <span><span className='text-[#3FCC7C]  font-semibold'>Carb</span>{' '}<span>{totalCarbs.toFixed(0)}g</span></span>
-                    <span><span className='text-[#5AC8FA]  font-semibold'>Protein</span>{' '}<span>{totalProtein.toFixed(0)}g</span></span>
-                </div>
-            </div>
+            <span className='font-semibold'>{(totalCalories || computedKcal)} kcal</span>
+            <span><span className='text-[#FF9500]  font-semibold'>Fat</span>{' '}<span>{totalFat.toFixed(0)}g</span></span>
+            <span><span className='text-[#3FCC7C]  font-semibold'>Carb</span>{' '}<span>{totalCarbs.toFixed(0)}g</span></span>
+            <span><span className='text-[#5AC8FA]  font-semibold'>Protein</span>{' '}<span>{totalProtein.toFixed(0)}g</span></span>
         </div>
     )
 }

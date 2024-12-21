@@ -158,11 +158,11 @@ export async function POST(request: Request) {
         console.log("creating predictions", mappedPredictions)
         await createPredictions(mappedPredictions);
 
-        const entryResult = await getEntry(entry.id);
+        // const entryResult = await getEntry(entry.id);
 
         return NextResponse.json<PredictResponse>({
             success: true,
-            result: entryResult
+            entryId: entry.id
         });
 
     } catch (error) {

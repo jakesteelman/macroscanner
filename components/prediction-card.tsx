@@ -2,18 +2,19 @@
 import { Tables } from '@/types/database.types'
 import React, { useCallback, useState } from 'react'
 import { Button } from './ui/button'
-import { ThumbsDown, ThumbsUp } from 'lucide-react'
+import { AlertOctagonIcon, LinkIcon, ThumbsDown, ThumbsUp } from 'lucide-react'
 import { markPredictionAsCorrect, markPredictionIncorrect } from '@/actions/predictions';
 import { toast } from 'sonner';
 
 import { Input } from './ui/input';
 import PredictionCardNutrition from './prediction-nutrition';
 import { cn } from '@/lib/utils';
+import { PredictionWithUSDA } from '@/types';
+import { Badge } from './ui/badge';
+import ManualLinkingDialog from './dialogs/manual-usda-link-dialog';
 
 type Props = {
-    prediction: Tables<'predictions'> & {
-        usda_foods?: Omit<Tables<'usda_foods'>, 'embedding'> | null
-    }
+    prediction: PredictionWithUSDA
 }
 
 const PredictionCard = ({ prediction }: Props) => {
@@ -79,10 +80,15 @@ const PredictionCard = ({ prediction }: Props) => {
         <div className="p-4 rounded-lg border w-full flex flex-col gap-2">
             <div className='flex flex-row items-center justify-between gap-2'>
                 <div className='flex flex-row items-center justify-start gap-2'>
-                    <h3 className="text-lg font-semibold capitalize">
-                        {prediction.corrected_name ?? prediction.name}
+                    <h3 className="text-lg font-semibold capitalize flex gap-2 items-center justify-start">
+                        <span>
+                            {prediction.corrected_quantity ?? prediction.quantity} <span className='lowercase'>{prediction.corrected_unit ?? prediction.unit}</span>{' '}
+                            {prediction.corrected_name ?? prediction.name}
+                        </span>
+                        {prediction.is_correct !== null && prediction.is_correct === false && (
+                            <Badge variant='outline' className='flex-none'>CORRECTED</Badge>
+                        )}
                     </h3>
-                    <p>{prediction.corrected_quantity ?? prediction.quantity} {prediction.corrected_unit ?? prediction.unit}</p>
                 </div>
                 <div className='flex flex-row items-center justify-start gap-2'>
                     <Button
@@ -108,6 +114,18 @@ const PredictionCard = ({ prediction }: Props) => {
                         <ThumbsDown className='size-4' />
                     </Button>
                 </div>
+            </div>
+            <div>
+                {prediction.usda_foods ? (
+                    <p className='text-sm text-muted-foreground'>
+                        USDA: {prediction.usda_foods.name}
+                    </p>
+                ) : (
+                    <p className='text-sm text-muted-foreground flex flex-row items-center justify-start gap-2'>
+                        <AlertOctagonIcon className='size-4 text-destructive' /><span className='text-destructive'>{' '}No USDA match found!{' '}</span>
+                        <ManualLinkingDialog prediction={prediction}><Button variant='link' size='sm' className='p-0 text-foreground'>Link manually</Button></ManualLinkingDialog>
+                    </p>
+                )}
             </div>
             <PredictionCardNutrition prediction={prediction} />
             {pendingFeedback === 'incorrect' && (

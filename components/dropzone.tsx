@@ -13,6 +13,7 @@ import { fileToBase64 } from '@/lib/utils'
 import { PredictRequest, PredictResponse } from '@/types/predict'
 import { Input } from './ui/input'
 import { v4 as uuidv4 } from 'uuid';
+import { useRouter } from 'next/navigation'
 
 interface FileWithPreview extends File {
     id: string;
@@ -29,7 +30,7 @@ export function Dropzone() {
     const [comment, setComment] = useState<string>()
     const [name, setName] = useState<string>()
     const [uploading, setUploading] = useState(false)
-    const [result, setResult] = useState<PredictResponse>()
+    const router = useRouter()
 
     const uploadFile = async (file: FileWithPreview) => {
         try {
@@ -145,8 +146,13 @@ export function Dropzone() {
 
             const response = await axios.post<PredictResponse>('/api/v1/predict', body);
 
-            setFiles([]);
-            setResult(response.data);
+            if (response.data.success) {
+                router.push(`/entries/${response.data.entryId}`);
+                setFiles([]);
+                setUploading(false);
+            } else {
+                throw new Error(response.data.error);
+            }
 
         } catch (error) {
             console.error(error);
@@ -243,13 +249,6 @@ export function Dropzone() {
                         >
                             {uploading ? 'Analyzing...' : `Analyze ${files.length} Food Image${files.length > 1 ? 's' : ''}`}
                         </Button>
-                    </div>
-                )}
-                {result && (
-                    <div className="mt-4">
-                        <pre>
-                            {JSON.stringify(result, null, 2)}
-                        </pre>
                     </div>
                 )}
             </div>
