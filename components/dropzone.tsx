@@ -156,23 +156,23 @@ export function Dropzone() {
     };
 
     return (
-        <div className="w-full max-w-md mx-auto">
+        <div className="w-full mx-auto">
             <div>
                 <div
                     {...getRootProps()}
                     className={cn(
-                        `border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors`,
+                        `border-2 border-dashed rounded-lg p-8 lg:p-16 text-center cursor-pointer transition-colors`,
                         isDragActive ? 'border-primary bg-primary/10' : 'border-border'
                     )}
                 >
                     <input {...getInputProps()} aria-label="Food image upload" />
                     <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <p className="mt-2 text-sm lg:text-base text-muted-foreground">
                         {isDragActive
                             ? "Drop the images here"
                             : "Drag 'n' drop food images here, or click to select"}
                     </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs lg:text-sm text-muted-foreground">
                         Upload up to 10 images
                     </p>
                 </div>

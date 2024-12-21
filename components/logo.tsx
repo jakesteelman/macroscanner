@@ -11,7 +11,7 @@ const Logo = (props: Props) => {
     const { theme } = useTheme()
     return (
         <Image
-            src={theme === "dark" ? "/logos/macroscanner-horizontal-light.svg" : "/logos/macroscanner-horizontal-dark.svg"}
+            src={theme === "dark" ? "/logos/macroscanner-horizontal-light.svg" : "/logos/macroscanner-horizontal-color-light.svg"}
             alt="Macroscanner Logo"
             width={200}
             height={50}

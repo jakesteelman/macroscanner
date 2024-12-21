@@ -64,3 +64,50 @@ export function serving(usdaFood: USDAFood, { quantity, unit }: ServingProps): U
         caffeine: (usdaFood.caffeine ?? 0) * scaleFactor,
     };
 }
+
+type MealProps = {
+    items: {
+        usdaFood: USDAFood,
+        quantity: number;
+        unit: string
+    }[]
+}
+
+type NumericKeys = {
+    [K in keyof USDAFood]: NonNullable<USDAFood[K]> extends number ? K : never
+}[keyof USDAFood];
+
+const EXCLUDED_KEYS: (keyof USDAFood)[] = [
+    'fdc_id', 'name', 'data_type', 'created_at', 'updated_at', 'density',
+];
+
+export function meal({ items }: MealProps): { nutritionFacts: USDAFood, totalWeight: number } {
+    const totalWeight = items.reduce((sum, { usdaFood, quantity, unit }) => {
+        return sum + convertToGrams(quantity, unit, usdaFood.density);
+    }, 0);
+
+    const result = items
+        .map(({ usdaFood, quantity, unit }) => serving(usdaFood, { quantity, unit }))
+        .reduce((acc: USDAFood, obj: USDAFood) => {
+            for (const key in obj) {
+                const keyTyped = key as NumericKeys;
+                if (typeof obj[keyTyped] === 'number' && !EXCLUDED_KEYS.includes(keyTyped)) {
+                    acc[keyTyped] = (acc[keyTyped] ?? 0) + (obj[keyTyped] ?? 0);
+                }
+            }
+            return acc;
+        }, {} as USDAFood);
+
+    // Round all numeric values
+    for (const key in result) {
+        const keyTyped = key as NumericKeys;
+        if (typeof result[keyTyped] === 'number' && !EXCLUDED_KEYS.includes(keyTyped)) {
+            result[keyTyped] = Math.round(result[keyTyped] as number);
+        }
+    }
+
+    return {
+        nutritionFacts: result,
+        totalWeight: Math.round(totalWeight)
+    };
+}

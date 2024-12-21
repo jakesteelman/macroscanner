@@ -20,7 +20,7 @@ const NavigationBar = ({
         <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16" {...props}>
             <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
                 <Link href="/">
-                    <Logo />
+                    <Logo className='h-8' />
                 </Link>
                 <HeaderAuth />
             </div>

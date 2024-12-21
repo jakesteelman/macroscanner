@@ -55,7 +55,7 @@ const MacroPieChart: React.FC<MacroPieChartProps> = ({ kcal, fat = 0, carb = 0, 
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    className="stroke-orange-500"
+                    className="stroke-[#FF9500]"
                     strokeWidth={thickness}
                     strokeDasharray={`${fatArc} ${circumference - fatArc}`}
                     strokeDashoffset="0"
@@ -68,7 +68,7 @@ const MacroPieChart: React.FC<MacroPieChartProps> = ({ kcal, fat = 0, carb = 0, 
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    className="stroke-green-500"
+                    className="stroke-[#3FCC7C]"
                     strokeWidth={thickness}
                     strokeDasharray={`${carbsArc} ${circumference - carbsArc}`}
                     strokeDashoffset={-fatArc}
@@ -81,7 +81,7 @@ const MacroPieChart: React.FC<MacroPieChartProps> = ({ kcal, fat = 0, carb = 0, 
                     cy={size / 2}
                     r={radius}
                     fill="none"
-                    className="stroke-blue-500"
+                    className="stroke-[#5AC8FA]"
                     strokeWidth={thickness}
                     strokeDasharray={`${proteinArc} ${circumference - proteinArc}`}
                     strokeDashoffset={-(fatArc + carbsArc)}

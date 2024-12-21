@@ -1,6 +1,6 @@
 import { Tables } from '@/types/database.types';
 import { serving } from '@/lib/utils/conversion';
-import MacroPieChart from './MacroPieChart';
+import MacroPieChart from './macro-breakdown-pie';
 
 type Props = {
     prediction: Tables<'predictions'> & {
@@ -34,9 +34,9 @@ const PredictionCardNutrition = ({ prediction }: Props) => {
             <div className='w-full flex flex-col items-start justify-start'>
                 <span className='font-semibold -mb-0.5'>{(totalCalories || computedKcal)} kcal</span>
                 <div className=' flex flex-row items-center justify-start gap-3 text-sm'>
-                    <span><span className='text-orange-500  font-semibold'>Fat</span>{' '}<span>{totalFat.toFixed(0)}g</span></span>
-                    <span><span className='text-green-500  font-semibold'>Carb</span>{' '}<span>{totalCarbs.toFixed(0)}g</span></span>
-                    <span><span className='text-blue-500  font-semibold'>Protein</span>{' '}<span>{totalProtein.toFixed(0)}g</span></span>
+                    <span><span className='text-[#FF9500]  font-semibold'>Fat</span>{' '}<span>{totalFat.toFixed(0)}g</span></span>
+                    <span><span className='text-[#3FCC7C]  font-semibold'>Carb</span>{' '}<span>{totalCarbs.toFixed(0)}g</span></span>
+                    <span><span className='text-[#5AC8FA]  font-semibold'>Protein</span>{' '}<span>{totalProtein.toFixed(0)}g</span></span>
                 </div>
             </div>
         </div>
