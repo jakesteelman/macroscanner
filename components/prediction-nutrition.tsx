@@ -1,18 +1,18 @@
 import { Tables } from '@/types/database.types';
 import { serving } from '@/lib/utils/conversion';
 import MacroPieChart from './macro-breakdown-pie';
+import { PredictionWithUSDA } from '@/types';
 
 type Props = {
-    prediction: Tables<'predictions'> & {
-        usda_foods?: Omit<Tables<'usda_foods'>, 'embedding'> | null
-    }
+    prediction: PredictionWithUSDA
 }
 
 const PredictionCardNutrition = ({ prediction }: Props) => {
     // all of this logic assumes grams as the unit. This will need to be updated to support other mass units, as well as volume.
-    if (!prediction.usda_foods) return null
+    const usdaFood = prediction.corrected_usda_food ?? prediction.usda_food
+    if (!usdaFood) return null;
 
-    const { kcal, fat, carbs, protein } = serving(prediction.usda_foods, {
+    const { kcal, fat, carbs, protein } = serving(usdaFood, {
         quantity: prediction.corrected_quantity || prediction.quantity,
         unit: prediction.corrected_unit || prediction.unit
     })

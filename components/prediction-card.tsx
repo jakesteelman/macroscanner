@@ -85,7 +85,7 @@ const PredictionCard = ({ prediction }: Props) => {
                             {prediction.corrected_quantity ?? prediction.quantity} <span className='lowercase'>{prediction.corrected_unit ?? prediction.unit}</span>{' '}
                             {prediction.corrected_name ?? prediction.name}
                         </span>
-                        {prediction.is_correct !== null && prediction.is_correct === false && (
+                        {((prediction.is_correct !== null && prediction.is_correct === false)) && (
                             <Badge variant='outline' className='flex-none'>CORRECTED</Badge>
                         )}
                     </h3>
@@ -116,9 +116,9 @@ const PredictionCard = ({ prediction }: Props) => {
                 </div>
             </div>
             <div>
-                {prediction.usda_foods ? (
+                {(prediction.corrected_usda_food ?? prediction.usda_food) ? (
                     <p className='text-sm text-muted-foreground'>
-                        USDA: {prediction.usda_foods.name}
+                        USDA: {prediction.corrected_usda_food?.name ?? prediction.usda_food?.name}
                     </p>
                 ) : (
                     <p className='text-sm text-muted-foreground flex flex-row items-center justify-start gap-2'>

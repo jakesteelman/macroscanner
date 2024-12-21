@@ -138,3 +138,49 @@ export const getFoodItem = async ({ fdcId }: GetUSDAFoodParams): Promise<Tables<
 
     return data;
 }
+
+/**
+ * Parameters for paginated search of USDA foods.
+ */
+interface SearchUSDAFoodsPaginatedParams {
+    query: string;
+    page?: number;
+    limit?: number;
+}
+
+/**
+ * Paginated search for USDA foods. Full Text Search.
+ * 
+ * @param params Parameters for paginated search of USDA foods.
+ * @returns Paginated search results of USDA foods.
+ */
+export const searchUSDAFoodsPaginated = async ({
+    query,
+    page = 1,
+    limit = 10
+}: SearchUSDAFoodsPaginatedParams) => {
+    const supabase = await createClient();
+    const start = (page - 1) * limit;
+
+    const ftsQuery = query.trim().split(/\s+/).join(' & ').toLowerCase();
+
+    const { data, error, count } = await supabase
+        .from('usda_foods')
+        .select('*', { count: 'exact' })
+        // .textSearch('fts', `'${ftsQuery}'`)
+        .filter('fts', 'fts', ftsQuery)
+        .neq('data_type', 'sub_sample_food')
+        .range(start, start + limit - 1)
+        .order('name');
+
+    if (error) {
+        throw error;
+    }
+
+    return {
+        foods: data,
+        total: count || 0,
+        page,
+        limit
+    };
+};

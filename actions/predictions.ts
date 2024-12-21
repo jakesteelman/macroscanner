@@ -2,6 +2,7 @@
 import { Database, TablesInsert, TablesUpdate } from "@/types/database.types"
 import { createClient } from "@/lib/supabase/server"
 import { getUser } from "./user"
+import { revalidatePath } from "next/cache"
 
 export async function createPredictions(prediction: TablesInsert<'predictions'>[]) {
     const supabase = await createClient()
@@ -71,6 +72,38 @@ export async function markPredictionIncorrect(id: string, corrections: Predictio
         .select();
 
     if (error) throw error
+
+    return data
+}
+
+/**
+ * Parameters to link a prediction to a USDA food item
+ */
+interface LinkPredictionParams {
+    /** ID of the prediction to link */
+    prediction_id: string,
+    /** FDC ID of the USDA food item to link to */
+    fdc_id: number,
+}
+
+/**
+ * Link a prediction to a USDA food item
+ * 
+ * @param params Parameters to link a prediction to a USDA food item
+ * @returns 
+ */
+export async function linkPredictionToUSDAFood({ prediction_id, fdc_id }: LinkPredictionParams) {
+    const supabase = await createClient()
+
+    const { data, error } = await supabase
+        .from('predictions')
+        .update({ corrected_fdc_id: fdc_id })
+        .eq('id', prediction_id)
+        .select();
+
+    if (error) throw error
+
+    revalidatePath(`/entries/${prediction_id}`)
 
     return data
 }

@@ -31,15 +31,19 @@ async function EntryDetails({ id }: { id: string }) {
         return `${prediction.corrected_quantity ?? prediction.quantity} ${prediction.corrected_unit ?? prediction.unit} ${prediction.corrected_name ?? prediction.name}`
     }).join(',\n')
 
-    const { nutritionFacts, totalWeight } = meal({
-        items: allPredictions.map(prediction => prediction.usda_foods && ({
-            usdaFood: prediction.usda_foods,
+    const items = allPredictions.map(prediction => {
+        const usdaFood = prediction.corrected_usda_food ?? prediction.usda_food
+        if (!usdaFood) return null;
+        return {
+            usdaFood,
             quantity: prediction.corrected_quantity ?? prediction.quantity,
             unit: prediction.corrected_unit ?? prediction.unit
-        })).filter(item => !!item)
-    })
+        }
+    }).filter(item => !!item && item !== null)
 
-    const hasIncompletePredictions = allPredictions.some(prediction => !prediction.usda_foods)
+    const { nutritionFacts, totalWeight } = meal({ items })
+
+    const hasIncompletePredictions = allPredictions.some(prediction => !prediction.usda_food && !prediction.corrected_usda_food)
 
     return (
         <div className="space-y-8">
