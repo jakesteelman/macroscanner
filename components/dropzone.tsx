@@ -1,7 +1,7 @@
 'use client'
 import { useState, useCallback } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Trash2, Upload } from 'lucide-react'
+import { Loader2, Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
@@ -190,11 +190,12 @@ export function Dropzone() {
                                             className="relative w-auto h-28 rounded-md object-cover"
                                         />
                                         {(file.uploading || file.error) && (
-                                            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black bg-opacity-50">
+                                            <div className="absolute inset-0 rounded-md flex flex-col items-center justify-center text-center text-xs font-semibold bg-black/50 text-white">
                                                 {file.uploading && (
-                                                    <div className="text-white text-sm">
+                                                    <>
+                                                        <Loader2 className='animate-spin size-6' />
                                                         Uploading... {file.uploadProgress}%
-                                                    </div>
+                                                    </>
                                                 )}
                                                 {file.error && (
                                                     <div className="text-red-500 text-sm">

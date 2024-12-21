@@ -2,6 +2,9 @@ import Link from 'next/link'
 import React from 'react'
 import Logo from './logo'
 import HeaderAuth from "@/components/header-auth";
+import { buttonVariants } from './ui/button';
+import { Crown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 type Props = {} & React.HTMLAttributes<HTMLDivElement>
 
@@ -22,7 +25,13 @@ const NavigationBar = ({
                 <Link href="/">
                     <Logo className='h-8' />
                 </Link>
-                <HeaderAuth />
+                <div className='flex gap-4 items-center justify-end'>
+                    <Link href="/pro" className={cn('text-yellow-600 dark:text-yellow-500', buttonVariants({ variant: 'ghost', size: 'sm' }))}>
+                        <Crown className='h-4 w-4' />
+                        Get Pro
+                    </Link>
+                    <HeaderAuth />
+                </div>
             </div>
         </nav>
     )
