@@ -215,6 +215,7 @@ export type Database = {
           description: string | null
           id: string
           image: string | null
+          marketing_features: Json[] | null
           metadata: Json | null
           name: string | null
         }
@@ -223,6 +224,7 @@ export type Database = {
           description?: string | null
           id: string
           image?: string | null
+          marketing_features?: Json[] | null
           metadata?: Json | null
           name?: string | null
         }
@@ -231,6 +233,7 @@ export type Database = {
           description?: string | null
           id?: string
           image?: string | null
+          marketing_features?: Json[] | null
           metadata?: Json | null
           name?: string | null
         }

@@ -12,10 +12,17 @@ export default async function PricingPage() {
         getSubscription()
     ]);
 
+    // Order the products by their price unit_amount ascending
+    const sortedProducts = (products || []).sort((a, b) => {
+        const aPrice = a.prices?.find((price) => price.active);
+        const bPrice = b.prices?.find((price) => price.active);
+        return (aPrice?.unit_amount || 0) - (bPrice?.unit_amount || 0);
+    })
+
     return (
         <Pricing
             user={user}
-            products={products ?? []}
+            products={sortedProducts}
             subscription={subscription}
         />
     );

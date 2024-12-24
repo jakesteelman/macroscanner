@@ -25,8 +25,8 @@ export const getProducts = cache(async () => {
         .select('*, prices(*)')
         .eq('active', true)
         .eq('prices.active', true)
-        .order('metadata->index')
-        .order('unit_amount', { referencedTable: 'prices' });
+        // .order('metadata->index')
+        .order('unit_amount', { referencedTable: 'prices', ascending: true });
 
     return products;
 });

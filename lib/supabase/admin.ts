@@ -3,7 +3,7 @@ import { toDateTime } from '@/lib/utils/helpers';
 import { stripe } from '@/stripe/config';
 import { createClient } from '@supabase/supabase-js';
 import Stripe from 'stripe';
-import type { Database, Tables, TablesInsert } from '@/types/database.types';
+import type { Database, Json, Tables, TablesInsert } from '@/types/database.types';
 
 type Product = Tables<'products'>;
 type Price = Tables<'prices'>;
@@ -24,6 +24,7 @@ const upsertProductRecord = async (product: Stripe.Product) => {
         active: product.active,
         name: product.name,
         description: product.description ?? null,
+        marketing_features: product?.marketing_features as Json[] ?? null,
         image: product.images?.[0] ?? null,
         metadata: product.metadata
     };
