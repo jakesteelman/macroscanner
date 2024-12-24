@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import NutritionFactsDialog from '@/components/dialogs/nutrition-facts-dialog';
 import TextSummaryDialog from '@/components/dialogs/text-summary-dialog';
 import { Badge } from '@/components/ui/badge';
+import { MacroBreakdownPie } from '@/components/macro-breakdown-pie2';
 
 export default async function Page({ params }: Readonly<{ params: Promise<{ id: string }> }>) {
 
@@ -79,7 +80,8 @@ async function EntryDetails({ id }: { id: string }) {
                 </div>
                 <div>
                     <ScrollArea className="w-full rounded-md">
-                        <div className="flex flex-col items-start justify-stretch gap-4">
+                        <MacroBreakdownPie nutritionFacts={nutritionFacts} />
+                        <div className="mt-4 flex flex-col items-start justify-stretch gap-4">
                             {entry.photos.map((photo, index) => (
                                 <div key={index} className="relative group w-full flex-shrink-0">
                                     <Suspense key={photo.id} fallback={<Skeleton className='h-56 aspect-square' />}>
