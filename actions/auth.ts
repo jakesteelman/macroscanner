@@ -186,3 +186,74 @@ export async function updateName(formData: FormData) {
         );
     }
 }
+
+export async function updateEmail(formData: FormData) {
+    const email = String(formData.get('email')).trim();
+    const supabase = await createClient();
+
+    const { error, data } = await supabase.auth.updateUser({
+        email: email,
+    }, {
+        emailRedirectTo: '/settings/account',
+    });
+
+    if (error) {
+        return encodedRedirect(
+            'error',
+            '/settings/account',
+            `Your email could not be updated: ` + error.message
+        );
+    } else if (data.user) {
+        return encodedRedirect(
+            'success',
+            '/settings/account',
+            'Please check your new email address for a verification link.'
+        );
+    } else {
+        return encodedRedirect(
+            'error',
+            '/settings/account',
+            'Hmm... Something went wrong. Your email could not be updated.'
+        );
+    }
+}
+
+export async function updatePassword(formData: FormData) {
+    const password = String(formData.get('password'));
+    const confirmPassword = String(formData.get('confirmPassword'));
+    const supabase = await createClient();
+
+    if (!password || !confirmPassword) {
+        return encodedRedirect(
+            'error',
+            '/settings/account',
+            'Both password fields are required'
+        );
+    }
+
+    if (password !== confirmPassword) {
+        return encodedRedirect(
+            'error',
+            '/settings/account',
+            'Passwords do not match'
+        );
+    }
+
+    const { error } = await supabase.auth.updateUser({
+        password: password
+    });
+
+    if (error) {
+        return encodedRedirect(
+            'error',
+            '/settings/account',
+            `Password could not be updated: ${error.message}`
+        );
+    }
+
+    return encodedRedirect(
+        'success',
+        '/settings/account',
+        'Your password has been updated successfully'
+    );
+}
