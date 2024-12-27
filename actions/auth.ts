@@ -132,3 +132,27 @@ export const signOutAction = async () => {
     await supabase.auth.signOut();
     return redirect("/sign-in");
 };
+
+// https://supabase.com/docs/guides/auth/social-login/auth-google?queryGroups=platform&platform=web&queryGroups=framework&framework=nextjs#application-code
+export const signInWithGoogleAction = async () => {
+
+    const origin = (await headers()).get("origin");
+    const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+            skipBrowserRedirect: true,
+            redirectTo: `${origin}/auth/callback`,
+        }
+    })
+
+    if (error) {
+        return encodedRedirect("error", "/sign-in", error.message);
+    }
+
+    if (data?.url) {
+        return redirect(data.url);
+    }
+
+    return encodedRedirect("error", "/sign-in", "Could not sign in with Google");
+};

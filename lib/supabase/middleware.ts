@@ -48,7 +48,7 @@ export const updateSession = async (request: NextRequest) => {
         //   return NextResponse.redirect(new URL("/protected", request.url));
         // }
 
-        const isOnAuthRoute = ['/sign-in', '/sign-up', '/forgot-password'].some(route => request.nextUrl.pathname.startsWith(route));
+        const isOnAuthRoute = ['/sign-in', '/sign-up', '/forgot-password', '/auth/callback'].some(route => request.nextUrl.pathname.startsWith(route));
 
         // check if the path name does not start with any of the auth routes and the user is not logged in
         if (!isOnAuthRoute && user.error) {

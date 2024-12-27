@@ -1,4 +1,3 @@
-import { GeistSans } from "geist/font/sans";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import NavigationBar from "@/components/navigation";
@@ -35,18 +34,7 @@ export default function RootLayout({
                     enableSystem
                     disableTransitionOnChange
                 >
-                    <main className="min-h-screen flex flex-col items-center">
-                        <div className="flex-1 w-full flex flex-col gap-4 items-stretch">
-                            <NavigationBar />
-                            <div className="flex flex-col gap-20 max-w-5xl px-5 w-full mx-auto">
-                                <TooltipProvider>
-                                    {children}
-                                </TooltipProvider>
-                            </div>
-                            <Footer />
-                        </div>
-                    </main>
-                    <Toaster position="top-center" />
+                    {children}
                 </ThemeProvider>
             </body>
         </html>
