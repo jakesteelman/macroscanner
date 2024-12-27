@@ -48,13 +48,13 @@ export default function CustomerPortalForm({ subscription }: Props) {
         <Card>
             <CardHeader>
                 <CardTitle>
-                    Your Plan
+                    Current plan
                 </CardTitle>
                 <CardDescription>
                     <p className="text-muted-foreground">
                         {subscription
                             ? `You are currently on the ${subscription?.prices?.products?.name} plan.`
-                            : 'You are not currently subscribed to any plan.'}
+                            : 'You\'re currently using Macroscanner Free.'}
                     </p>
                 </CardDescription>
             </CardHeader>

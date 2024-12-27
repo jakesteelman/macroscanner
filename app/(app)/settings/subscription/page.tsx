@@ -16,8 +16,6 @@ export default async function SubscriptionPage() {
     }
 
     return (
-        <section className="mb-32">
-            <CustomerPortalForm subscription={subscription} />
-        </section>
+        <CustomerPortalForm subscription={subscription} />
     );
 }

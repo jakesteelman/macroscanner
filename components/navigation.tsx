@@ -7,6 +7,7 @@ import { Crown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from './ui/badge';
 import { getSubscription } from '@/actions/subscriptions';
+import { ThemeSwitcher } from './theme-switcher';
 
 type Props = {} & React.HTMLAttributes<HTMLDivElement>
 
@@ -36,6 +37,7 @@ export default async function NavigationBar({
                         <Crown className='h-4 w-4' />
                         Get Pro
                     </Link>}
+                    <ThemeSwitcher />
                     <HeaderAuth />
                 </div>
             </div>

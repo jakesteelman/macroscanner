@@ -1,6 +1,5 @@
 import NavigationBar from "@/components/navigation";
 import Footer from "@/components/footer";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
@@ -22,9 +21,7 @@ export default function RootLayout({
             <div className="flex-1 w-full flex flex-col gap-4 items-stretch">
                 <NavigationBar />
                 <div className="flex flex-col gap-20 max-w-5xl px-5 w-full mx-auto">
-                    <TooltipProvider>
-                        {children}
-                    </TooltipProvider>
+                    {children}
                 </div>
                 <Footer />
             </div>
