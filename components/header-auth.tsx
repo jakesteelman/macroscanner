@@ -2,6 +2,7 @@ import { signOutAction } from "@/actions/auth";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { createClient } from "@/lib/supabase/server";
+import UserDropdown from "./user-dropdown";
 
 export default async function AuthButton() {
     const supabase = await createClient();
@@ -12,9 +13,7 @@ export default async function AuthButton() {
 
     return user ? (
         <div className="flex items-center gap-4">
-            <Button asChild size="sm" variant={"outline"}>
-                <Link href="/account">Account</Link>
-            </Button>
+            <UserDropdown user={user} />
             {/* <form action={signOutAction}>
                 <Button type="submit" variant={"outline"}>
                     Sign out

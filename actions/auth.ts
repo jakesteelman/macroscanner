@@ -156,3 +156,33 @@ export const signInWithGoogleAction = async () => {
 
     return encodedRedirect("error", "/sign-in", "Could not sign in with Google");
 };
+
+export async function updateName(formData: FormData) {
+    // Get form data
+    const fullName = String(formData.get('fullName')).trim();
+    const origin = (await headers()).get("origin");
+    const supabase = await createClient();
+    const { error, data } = await supabase.auth.updateUser({
+        data: { full_name: fullName }
+    });
+
+    if (error) {
+        return encodedRedirect(
+            'error',
+            '/settings/account',
+            `Your name could not be updated: ` + error.message
+        );
+    } else if (data.user) {
+        return encodedRedirect(
+            'success',
+            '/settings/account',
+            'Success! Your name has been updated.'
+        );
+    } else {
+        return encodedRedirect(
+            'error',
+            '/settings/account',
+            'Hmm... Something went wrong. Your name could not be updated.'
+        );
+    }
+}
