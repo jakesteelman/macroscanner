@@ -31,9 +31,9 @@ const PredictionCardNutrition = ({ prediction }: Props) => {
     return (
         <div className='w-full flex flex-row items-center justify-start gap-2'>
             <span className='font-semibold'>{(totalCalories || computedKcal)} kcal</span>
-            <span><span className='text-[#FF9500]  font-semibold'>Fat</span>{' '}<span>{totalFat.toFixed(0)}g</span></span>
-            <span><span className='text-[#3FCC7C]  font-semibold'>Carb</span>{' '}<span>{totalCarbs.toFixed(0)}g</span></span>
-            <span><span className='text-[#5AC8FA]  font-semibold'>Protein</span>{' '}<span>{totalProtein.toFixed(0)}g</span></span>
+            <span><span className='text-chart-1 font-semibold'>Protein</span>{' '}<span>{totalProtein.toFixed(0)}g</span></span>
+            <span><span className='text-chart-2 font-semibold'>Fat</span>{' '}<span>{totalFat.toFixed(0)}g</span></span>
+            <span><span className='text-chart-3 font-semibold'>Carb</span>{' '}<span>{totalCarbs.toFixed(0)}g</span></span>
         </div>
     )
 }
