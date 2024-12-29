@@ -42,7 +42,7 @@ const chartConfig = {
     },
     other: {
         label: "Other",
-        color: "hsl(var(--chart-5))",
+        color: "hsl(var(--chart-gray))",
     },
 } satisfies ChartConfig
 
