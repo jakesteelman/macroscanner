@@ -29,6 +29,7 @@ export function PricingCard({
     const price = product?.prices?.find(
         (price) => price.interval === billingInterval
     );
+    // FIXME: hooks can't be called conditionally
     if (!price) return null;
 
     const priceString = new Intl.NumberFormat('en-US', {

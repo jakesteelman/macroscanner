@@ -1,12 +1,4 @@
-import { Suspense } from 'react';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import SupabaseImage from '@/components/supabase-image';
 import { Skeleton } from '@/components/ui/skeleton';
-import PredictionCard from '@/components/prediction-card';
-import NutritionFactsDialog from '@/components/dialogs/nutrition-facts-dialog';
-import TextSummaryDialog from '@/components/dialogs/text-summary-dialog';
-import { Badge } from '@/components/ui/badge';
-import { MacroBreakdownPie } from '@/components/macro-breakdown-pie2';
 import { Button } from '@/components/ui/button';
 import PredictionCardSkeleton from '@/components/loading/prediction-card-skeleton';
 import { ScanBarcode, ScanText } from 'lucide-react';

@@ -25,7 +25,7 @@ export const getURL = (path: string = '') => {
 };
 
 export const toDateTime = (secs: number) => {
-    var t = new Date(+0); // Unix epoch start.
+    const t = new Date(+0); // Unix epoch start.
     t.setSeconds(secs);
     return t;
 };
