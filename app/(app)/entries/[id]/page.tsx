@@ -25,9 +25,6 @@ export default async function Page({ params }: Readonly<{ params: Promise<{ id: 
 async function EntryDetails({ id }: { id: string }) {
     const entry = await getEntry(id)
 
-    // SIMULATE a 10 second delay
-    await new Promise(resolve => setTimeout(resolve, 10000))
-
     const allPredictions = entry.photos.map(photo => photo.predictions).flat()
     const textDescription = allPredictions.map(prediction => {
         return `${prediction.corrected_quantity ?? prediction.quantity} ${prediction.corrected_unit ?? prediction.unit} ${prediction.corrected_name ?? prediction.name}`

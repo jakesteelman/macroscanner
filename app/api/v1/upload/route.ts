@@ -33,7 +33,7 @@ export async function POST(request: Request) {
         const processedBuffer = await sharp(buffer)
             .withMetadata()
             .rotate()
-            .resize({ width: 1600, height: 1600, fit: 'inside' })
+            .resize({ width: 1200, height: 1200, fit: 'inside' })
             .jpeg({ quality: 80 })
             .toBuffer();
 

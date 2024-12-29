@@ -66,16 +66,20 @@ export async function POST(request: Request) {
             comment
         });
 
+        console.log("Prediction Usage:", prediction_usage);
+
         // Embed the predictions
         const {
             data: embeddingData,
             // TODO: Handle usage data.
-            /* usage: embeddingUsage */
+            usage: embeddingUsage
         } = await openai.embeddings.create({
             dimensions: 1536,
             model: 'text-embedding-3-small',
             input: result.predictions.map(({ name }) => name)
         });
+
+        console.log("Embedding Usage:", embeddingUsage);
 
         const predictions = result.predictions.map((prediction, i) => ({
             ...prediction,
@@ -95,11 +99,7 @@ export async function POST(request: Request) {
                 console.debug('Searching for:', prediction.name);
                 console.debug("Embedding length", prediction.embedding?.length);
 
-                const {
-                    matches,
-                    // embedding_usage
-                    // TODO: Handle usage data.
-                } = await searchUSDAFoods({
+                const { matches } = await searchUSDAFoods({
                     query_embedding: prediction.embedding,
                     match_count: 10,
                     match_threshold: 0.4
@@ -130,6 +130,8 @@ export async function POST(request: Request) {
                             target: prediction.name,
                             images: processedPhotos.map(p => p.base64)
                         });
+
+                        console.log("Choose USDA Item Usage:", usage);
 
                         prediction_usage.promptTokens = usage.promptTokens;
                         prediction_usage.completionTokens = usage.completionTokens;
