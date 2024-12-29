@@ -1,23 +1,22 @@
 "use client";
-import { Tables } from '@/types/database.types'
 import React, { useCallback, useState } from 'react'
-import { Button } from './ui/button'
-import { AlertOctagonIcon, LinkIcon, ThumbsDown, ThumbsUp } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { AlertOctagonIcon, ThumbsDown, ThumbsUp } from 'lucide-react'
 import { markPredictionAsCorrect, markPredictionIncorrect } from '@/actions/predictions';
 import { toast } from 'sonner';
-
-import { Input } from './ui/input';
-import PredictionCardNutrition from './prediction-nutrition';
+import { Input } from '@/components/ui/input';
+import PredictionCardNutrition from '@/components/prediction-nutrition';
 import { cn } from '@/lib/utils';
 import { PredictionWithUSDA } from '@/types';
-import { Badge } from './ui/badge';
-import ManualLinkingDialog from './dialogs/manual-usda-link-dialog';
+import { Badge } from '@/components/ui/badge';
+import ManualLinkingDialog from '@/components/dialogs/manual-usda-link-dialog';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-type Props = {
+type PredictionCardProps = {
     prediction: PredictionWithUSDA
 }
 
-const PredictionCard = ({ prediction }: Props) => {
+const PredictionCard = ({ prediction }: PredictionCardProps) => {
 
     const [pendingFeedback, setPendingFeedback] = useState<"correct" | "incorrect" | undefined>()
     const [corrections, setCorrections] = useState({
@@ -77,20 +76,18 @@ const PredictionCard = ({ prediction }: Props) => {
         [corrections, prediction])
 
     return (
-        <div className="p-4 rounded-lg border w-full flex flex-col gap-2">
-            <div className='flex flex-row items-center justify-between gap-2'>
-                <div className='flex flex-row items-center justify-start gap-2'>
-                    <h3 className="text-lg font-semibold capitalize flex gap-2 items-center justify-start">
-                        <span>
-                            {prediction.corrected_quantity ?? prediction.quantity} <span className='lowercase'>{prediction.corrected_unit ?? prediction.unit}</span>{' '}
-                            {prediction.corrected_name ?? prediction.name}
-                        </span>
-                        {((prediction.is_correct !== null && prediction.is_correct === false)) && (
-                            <Badge variant='outline' className='flex-none'>CORRECTED</Badge>
-                        )}
-                    </h3>
-                </div>
-                <div className='flex flex-row items-center justify-start gap-2'>
+        <Card>
+            <CardHeader className='flex flex-row items-center justify-between gap-2 px-4 pt-4 pb-0'>
+                <CardTitle className="text-lg font-semibold capitalize flex gap-2 items-center justify-start">
+                    <span>
+                        {prediction.corrected_quantity ?? prediction.quantity} <span className='lowercase'>{prediction.corrected_unit ?? prediction.unit}</span>{' '}
+                        {prediction.corrected_name ?? prediction.name}
+                    </span>
+                    {((prediction.is_correct !== null && prediction.is_correct === false)) && (
+                        <Badge variant='outline' className='flex-none'>CORRECTED</Badge>
+                    )}
+                </CardTitle>
+                <div className='flex flex-row items-center justify-end gap-2 !m-0'>
                     <Button
                         size='icon'
                         variant='ghost'
@@ -114,52 +111,54 @@ const PredictionCard = ({ prediction }: Props) => {
                         <ThumbsDown className='size-4' />
                     </Button>
                 </div>
-            </div>
-            <div>
-                {(prediction.corrected_usda_food ?? prediction.usda_food) ? (
-                    <p className='text-sm text-muted-foreground'>
-                        USDA: {prediction.corrected_usda_food?.name ?? prediction.usda_food?.name}
-                    </p>
-                ) : (
-                    <p className='text-sm text-muted-foreground flex flex-row items-center justify-start gap-2'>
-                        <AlertOctagonIcon className='size-4 text-destructive' /><span className='text-destructive'>{' '}No USDA match found!{' '}</span>
-                        <ManualLinkingDialog prediction={prediction}><Button variant='link' size='sm' className='p-0 text-foreground'>Link manually</Button></ManualLinkingDialog>
-                    </p>
-                )}
-            </div>
-            <PredictionCardNutrition prediction={prediction} />
-            {pendingFeedback === 'incorrect' && (
-                <div className='flex flex-col items-stretch justify-start gap-2'>
-                    <h4 className='font-semibold'>
-                        Correct this prediction
-                    </h4>
-                    <div className='grid gap-4 grid-cols-[1fr,1fr,1fr,1fr,min-content]' >
-                        <Input
-                            type="text"
-                            placeholder="Correct name"
-                            className='col-span-2 w-full'
-                            defaultValue={corrections.name}
-                            onChange={(e) => setCorrections({ ...corrections, name: e.target.value })}
-                        />
-                        <Input
-                            type="text"
-                            placeholder="Correct quantity"
-                            className='col-span-1 w-full'
-                            defaultValue={corrections.quantity}
-                            onChange={(e) => setCorrections({ ...corrections, quantity: e.target.value })}
-                        />
-                        <Input
-                            type="text"
-                            placeholder="Correct unit"
-                            className='col-span-1 w-full'
-                            defaultValue={corrections.unit}
-                            onChange={(e) => setCorrections({ ...corrections, unit: e.target.value })}
-                        />
-                        <Button size='sm' className='h-full w-20' onClick={handleCorrectPrediction}>Save</Button>
-                    </div>
+            </CardHeader>
+            <CardContent className='px-4 pb-4 pt-2 space-y-4'>
+                <div>
+                    {(prediction.corrected_usda_food ?? prediction.usda_food) ? (
+                        <p className='text-sm text-muted-foreground'>
+                            USDA: {prediction.corrected_usda_food?.name ?? prediction.usda_food?.name}
+                        </p>
+                    ) : (
+                        <p className='text-sm text-muted-foreground flex flex-row items-center justify-start gap-2'>
+                            <AlertOctagonIcon className='size-4 text-destructive' /><span className='text-destructive'>{' '}No USDA match found!{' '}</span>
+                            <ManualLinkingDialog prediction={prediction}><Button variant='link' size='sm' className='p-0 text-foreground'>Link manually</Button></ManualLinkingDialog>
+                        </p>
+                    )}
                 </div>
-            )}
-        </div>
+                <PredictionCardNutrition prediction={prediction} />
+                {pendingFeedback === 'incorrect' && (
+                    <div className='flex flex-col items-stretch justify-start gap-2'>
+                        <h4 className='font-semibold'>
+                            Correct this prediction
+                        </h4>
+                        <div className='grid gap-4 grid-cols-[1fr,1fr,1fr,1fr,min-content]' >
+                            <Input
+                                type="text"
+                                placeholder="Correct name"
+                                className='col-span-2 w-full'
+                                defaultValue={corrections.name}
+                                onChange={(e) => setCorrections({ ...corrections, name: e.target.value })}
+                            />
+                            <Input
+                                type="text"
+                                placeholder="Correct quantity"
+                                className='col-span-1 w-full'
+                                defaultValue={corrections.quantity}
+                                onChange={(e) => setCorrections({ ...corrections, quantity: e.target.value })}
+                            />
+                            <Input
+                                type="text"
+                                placeholder="Correct unit"
+                                className='col-span-1 w-full'
+                                defaultValue={corrections.unit}
+                                onChange={(e) => setCorrections({ ...corrections, unit: e.target.value })}
+                            />
+                            <Button size='sm' className='h-full w-20' onClick={handleCorrectPrediction}>Save</Button>
+                        </div>
+                    </div>
+                )}
+            </CardContent>
+        </Card>
     )
 }
 

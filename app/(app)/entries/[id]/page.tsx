@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { getEntry } from '../../../../actions/entries';
+import { getEntry } from '@/actions/entries';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import SupabaseImage from '@/components/supabase-image';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,16 +16,17 @@ export default async function Page({ params }: Readonly<{ params: Promise<{ id: 
     const { id } = await params;
 
     return (
-        <div className="container mx-auto p-4">
-            <Suspense fallback={<div>Loading entry details...</div>}>
-                <EntryDetails id={id} />
-            </Suspense>
+        <div className="container mx-auto px-0">
+            <EntryDetails id={id} />
         </div>
     )
 }
 
 async function EntryDetails({ id }: { id: string }) {
     const entry = await getEntry(id)
+
+    // SIMULATE a 10 second delay
+    await new Promise(resolve => setTimeout(resolve, 10000))
 
     const allPredictions = entry.photos.map(photo => photo.predictions).flat()
     const textDescription = allPredictions.map(prediction => {
