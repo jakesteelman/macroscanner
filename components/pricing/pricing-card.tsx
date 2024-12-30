@@ -43,10 +43,6 @@ export function PricingCard({
     }, [onCheckout, price]);
 
 
-    const handleOpenCustomerPortal = useCallback(async () => {
-        return router.push(await createStripePortal(pathname))
-    }, []);
-
     return (
         <Card
             className={cn(
@@ -82,8 +78,7 @@ export function PricingCard({
                     const featureName = feature['name'];
                     return (
                         <div key={index} className='flex flex-row items-center justify-start text-muted-foreground'>
-                            <Check className={cn(
-                                product.name?.toLowerCase().includes("pro") ? "text-[#a47e1b] dark:text-[#b69121]" : "text-primary",
+                            <Check className={cn("text-primary",
                                 "size-6"
                             )} />
                             <span className="ml-2">{featureName}</span>
@@ -92,32 +87,20 @@ export function PricingCard({
                 })}
             </CardContent>
             <CardFooter className='w-full flex items-stretch justify-stretch'>
-                {product.name !== 'Macroscanner Free' ? (
-                    <Button
-                        variant="default"
-                        type="button"
-                        disabled={priceIdLoading === price.id}
-                        onClick={handleCtaClicked}
-                        className={cn(
-                            'from-[#926c15] to-[#b69121] dark:from-[#a47e1b] dark:to-[#c9a227]',
-                            'hover:from-[#a47e1b] hover:to-[#c9a227] hover:dark:from-[#b69121] hover:dark:to-[#dbb42c]',
-                            'w-full bg-gradient-to-r transition-all text-background'
-                        )}
-                    >
-                        {priceIdLoading === price.id && <Loader2 className="size-6" />}
-                        {subscription ? 'Manage' : 'Subscribe'}
-                    </Button>
-                ) : (
-                    <Button
-                        variant={'outline'}
-                        type='button'
-                        disabled={!subscription}
-                        className='w-full'
-                        onClick={handleOpenCustomerPortal}
-                    >
-                        {!subscription ? "Subscribed" : "Downgrade"}
-                    </Button>
-                )}
+                <Button
+                    variant="default"
+                    type="button"
+                    disabled={priceIdLoading === price.id}
+                    onClick={handleCtaClicked}
+                    className={cn(
+                        'from-[#926c15] to-[#b69121] dark:from-[#a47e1b] dark:to-[#c9a227]',
+                        'hover:from-[#a47e1b] hover:to-[#c9a227] hover:dark:from-[#b69121] hover:dark:to-[#dbb42c]',
+                        'w-full bg-gradient-to-r transition-all text-background'
+                    )}
+                >
+                    {priceIdLoading === price.id && <Loader2 className="size-6" />}
+                    {subscription ? 'Manage' : 'Subscribe'}
+                </Button>
             </CardFooter>
         </Card>
     );

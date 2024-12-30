@@ -78,7 +78,7 @@ async function EntryDetails({ id }: { id: string }) {
                 </div>
                 <div>
                     <ScrollArea className="w-full rounded-md">
-                        <MacroBreakdownPie nutritionFacts={nutritionFacts} />
+                        {(nutritionFacts && nutritionFacts.kcal) && <MacroBreakdownPie nutritionFacts={nutritionFacts} />}
                         <div className="mt-4 flex flex-col items-start justify-stretch gap-4">
                             {entry.photos.map((photo, index) => (
                                 <div key={index} className="relative group w-full flex-shrink-0">
