@@ -28,7 +28,7 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
                         <AvatarImage src={user.user_metadata.avatar_url} alt={user.user_metadata.full_name} />
-                        <AvatarFallback>{user.user_metadata.full_name.split(' ').slice(0, 2).map((part: string) => part.charAt(0)).join('')}</AvatarFallback>
+                        <AvatarFallback>{user.user_metadata.full_name?.split(' ').slice(0, 2).map((part: string) => part.charAt(0)).join('')}</AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
