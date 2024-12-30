@@ -1,13 +1,11 @@
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
-import NavigationBar from "@/components/navigation";
-import Footer from "@/components/footer";
-import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import localFont from 'next/font/local'
+import localFont from 'next/font/local';
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
+
 
 export const metadata = {
     metadataBase: new URL(defaultUrl),
