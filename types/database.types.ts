@@ -519,18 +519,32 @@ export type Database = {
             }
             Returns: unknown
           }
-      search_usda_foods: {
-        Args: {
-          query_embedding: string
-          match_threshold: number
-          match_count: number
-        }
-        Returns: {
-          fdc_id: number
-          name: string
-          similarity: number
-        }[]
-      }
+      search_usda_foods:
+        | {
+            Args: {
+              query_embedding: string
+              match_threshold: number
+              match_count: number
+            }
+            Returns: {
+              fdc_id: number
+              name: string
+              similarity: number
+            }[]
+          }
+        | {
+            Args: {
+              query_embedding: string
+              match_threshold: number
+              match_count: number
+              require_density: boolean
+            }
+            Returns: {
+              fdc_id: number
+              name: string
+              similarity: number
+            }[]
+          }
       sparsevec_out: {
         Args: {
           "": unknown

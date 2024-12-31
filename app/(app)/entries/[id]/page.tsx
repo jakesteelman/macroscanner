@@ -46,14 +46,32 @@ async function EntryDetails({ id }: { id: string }) {
 
     return (
         <div className="space-y-8">
-            <div className='w-full grid grid-cols-3 gap-6 lg:gap-12'>
-                <div className='col-span-2 flex flex-col gap-4 lg:gap-6'>
+            <div className='w-full grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-12'>
+                <div className='md:col-span-2 flex flex-col gap-4 lg:gap-6'>
+                    <ScrollArea className="md:hidden w-full rounded-md">
+                        <div className="flex flex-row items-start justify-start gap-4">
+                            {entry.photos.map((photo, index) => (
+                                <div key={index} className="relative group flex-shrink-0">
+                                    <Suspense key={photo.id} fallback={<Skeleton className='w-56 aspect-square' />}>
+                                        <SupabaseImage
+                                            path={photo.photo_url}
+                                            alt={`Food image ${index + 1}`}
+                                            width={300}
+                                            height={300}
+                                            className="relative aspect-square w-56 rounded-md object-cover"
+                                        />
+                                    </Suspense>
+                                </div>
+                            ))}
+                        </div>
+                        <ScrollBar orientation='horizontal' className='translate-y-3' />
+                    </ScrollArea>
                     <div className='flex flex-col gap-2'>
-                        <h1 className="text-5xl font-bold tracking-tight">{entry.name}</h1>
-                        {entry.comment && <p className='text-lg text-muted-foreground'>{entry.comment}</p>}
+                        <h1 className="text-5xl font-semibold tracking-tight">{entry.name}</h1>
+                        {entry.comment && <p className='text-base lg:text-lg text-muted-foreground'>{entry.comment}</p>}
                         <p className='text-base font-medium text-muted-foreground uppercase'>{format(entry.created_at, 'MM/d/yyyy, h:mm a')}</p>
                     </div>
-                    <div className='w-full flex flex-row items-center justify-start gap-4'>
+                    <div className='w-full flex flex-col items-stretch justify-start gap-2 sm:flex-row sm:items-center sm:justify-start sm:gap-4'>
                         {nutritionFacts && (
                             <NutritionFactsDialog
                                 nutritionFacts={nutritionFacts}
@@ -76,7 +94,7 @@ async function EntryDetails({ id }: { id: string }) {
                         </div>
                     </div>
                 </div>
-                <div>
+                <div className='hidden md:block'>
                     <ScrollArea className="w-full rounded-md">
                         {(nutritionFacts && nutritionFacts.kcal) && <MacroBreakdownPie nutritionFacts={nutritionFacts} />}
                         <div className="mt-4 flex flex-col items-start justify-stretch gap-4">
@@ -96,6 +114,9 @@ async function EntryDetails({ id }: { id: string }) {
                         </div>
                         <ScrollBar orientation='vertical' />
                     </ScrollArea>
+                </div>
+                <div className='md:hidden'>
+                    {(nutritionFacts && nutritionFacts.kcal) && <MacroBreakdownPie nutritionFacts={nutritionFacts} />}
                 </div>
             </div>
         </div>

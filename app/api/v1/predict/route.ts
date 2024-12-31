@@ -9,6 +9,7 @@ import { createPredictions } from "@/actions/predictions";
 import { TablesInsert } from "@/types/database.types";
 import OpenAI from "openai";
 import { searchUSDAFoods } from "@/actions/usda";
+import { VOLUME_UNITS } from "@/lib/utils/conversion";
 
 export async function POST(request: Request) {
     const supabase = await createClient();
@@ -99,10 +100,15 @@ export async function POST(request: Request) {
                 console.debug('Searching for:', prediction.name);
                 console.debug("Embedding length", prediction.embedding?.length);
 
+                // we need density when we search foods if the unit is a volume unit
+                const needsDensity = VOLUME_UNITS.includes(prediction.unit);
+                console.log('We need density for this prediction:', prediction.name, prediction.unit, needsDensity);
+
                 const { matches } = await searchUSDAFoods({
                     query_embedding: prediction.embedding,
                     match_count: 10,
-                    match_threshold: 0.4
+                    match_threshold: 0.4,
+                    require_density: needsDensity
                 });
 
                 if (!matches) {

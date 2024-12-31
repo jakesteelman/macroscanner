@@ -1,10 +1,7 @@
 "use client";
-
-import { Button } from "@/components/ui/button";
 import { Laptop, Moon, Sun } from 'lucide-react';
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function ThemeSwitcher() {
     const [mounted, setMounted] = useState(false);
@@ -19,7 +16,8 @@ export function ThemeSwitcher() {
         return null;
     }
 
-    const cycleTheme = () => {
+    const cycleTheme = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
         if (theme === 'light') {
             setTheme('dark');
         } else if (theme === 'dark') {
@@ -30,33 +28,32 @@ export function ThemeSwitcher() {
     };
 
     return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <Button variant="ghost" size="sm" onClick={cycleTheme} aria-label="Toggle theme" className="w-9 h-9 p-1">
-                    {theme === "light" ? (
-                        <Sun
-                            key="light"
-                            size={16}
-                            className="text-muted-foreground"
-                        />
-                    ) : theme === "dark" ? (
-                        <Moon
-                            key="dark"
-                            size={16}
-                            className="text-muted-foreground"
-                        />
-                    ) : (
-                        <Laptop
-                            key="system"
-                            size={16}
-                            className="text-muted-foreground"
-                        />
-                    )}
-                </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-                Toggle theme, currently{' '}{theme}
-            </TooltipContent>
-        </Tooltip>
+        <button onClick={cycleTheme} aria-label="Toggle theme" className="flex items-center gap-2 w-full">
+            {theme === "light" ? (
+                <>
+                    <Sun
+                        key="light"
+                        className="size-4"
+                    />
+                    Light theme
+                </>
+            ) : theme === "dark" ? (
+                <>
+                    <Moon
+                        key="dark"
+                        className="size-4"
+                    />
+                    Dark theme
+                </>
+            ) : (
+                <>
+                    <Laptop
+                        key="system"
+                        className="size-4"
+                    />
+                    System theme
+                </>
+            )}
+        </button>
     );
 }

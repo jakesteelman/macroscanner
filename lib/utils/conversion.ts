@@ -4,7 +4,7 @@ import type { USDAFood } from '@/types';
 
 // Predefine supported units for mass and volume that `convert` can handle.
 const MASS_UNITS = ['g', 'grams', 'gram', 'kg', 'kilograms', 'kilogram', 'oz', 'ounce', 'ounces', 'lb', 'pound', 'pounds'];
-const VOLUME_UNITS = [
+export const VOLUME_UNITS = [
     'ml', 'milliliter', 'milliliters',
     'l', 'liter', 'liters', 'litre', 'litres',
     'tsp', 'teaspoon', 'teaspoons',

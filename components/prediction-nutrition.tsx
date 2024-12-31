@@ -1,6 +1,4 @@
-import { Tables } from '@/types/database.types';
 import { serving } from '@/lib/utils/conversion';
-import MacroPieChart from './macro-breakdown-pie';
 import { PredictionWithUSDA } from '@/types';
 
 type Props = {

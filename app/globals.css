@@ -86,4 +86,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    @apply text-[18px];
+  }
+  @screen md {
+    html {
+      @apply text-base;
+    }
+  }
 }

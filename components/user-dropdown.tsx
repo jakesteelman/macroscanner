@@ -11,6 +11,7 @@ import { LifeBuoy, Lightbulb, LogOut, Settings, Truck } from 'lucide-react'
 import Link from 'next/link'
 import { signOutAction } from '@/actions/auth'
 import { User } from "@supabase/supabase-js"
+import { ThemeSwitcher } from "./theme-switcher"
 
 interface UserDropdownProps {
     user: User
@@ -45,6 +46,9 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                         <Settings className="mr-2 h-4 w-4" />
                         <span>Settings</span>
                     </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                    <ThemeSwitcher />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 {roadmapURL !== '' && (

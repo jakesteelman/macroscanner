@@ -1,7 +1,7 @@
 'use client'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { useDropzone } from 'react-dropzone'
-import { Loader2, Trash2, Upload } from 'lucide-react'
+import { Images, Loader2, Plus, Scan, ScanBarcode, Sparkles, Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from './ui/scroll-area'
@@ -30,7 +30,14 @@ export function Dropzone() {
     const [comment, setComment] = useState<string>()
     const [name, setName] = useState<string>()
     const [uploading, setUploading] = useState(false)
+    const [showDropzone, setShowDropzone] = useState(true)
     const router = useRouter()
+
+    useEffect(() => {
+        if (files.length > 0) {
+            setShowDropzone(false)
+        }
+    }, [files])
 
     const uploadFile = async (file: FileWithPreview) => {
         try {
@@ -163,17 +170,17 @@ export function Dropzone() {
 
     return (
         <div className="w-full mx-auto">
-            <div>
+            {showDropzone ? (
                 <div
                     {...getRootProps()}
                     className={cn(
-                        `border-2 border-dashed rounded-lg p-8 lg:p-16 text-center cursor-pointer transition-colors`,
+                        `border-2 border-dashed rounded-lg px-16 py-32 md:p-16 text-center cursor-pointer transition-colors`,
                         isDragActive ? 'border-primary bg-primary/10' : 'border-border'
                     )}
                 >
                     <input {...getInputProps()} aria-label="Food image upload" />
-                    <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                    <p className="mt-2 text-sm lg:text-base text-muted-foreground">
+                    <Images className="mx-auto h-10 w-10 text-muted-foreground" />
+                    <p className="mt-2 text-base text-muted-foreground">
                         {isDragActive
                             ? "Drop the images here"
                             : "Drag 'n' drop food images here, or click to select"}
@@ -182,76 +189,83 @@ export function Dropzone() {
                         Upload up to 10 images
                     </p>
                 </div>
-                {files.length > 0 && (
+            ) : (
+                <Button variant='outline' className='w-full border-2 border-border border-dashed' onClick={() => setShowDropzone(true)}>
+                    <Plus className='h-4 w-4' />
+                    Add more</Button>
+            )}
+            {files.length > 0 && (
+                <div className="mt-4">
+                    <ScrollArea className="w-full rounded-md border">
+                        <div className="flex flex-row items-center justify-start gap-4 p-4">
+                            {files.map((file) => (
+                                <div key={file.id} className="relative group h-28 w-auto flex-shrink-0">
+                                    <Image
+                                        src={file.preview}
+                                        alt={`Food image`}
+                                        width={150}
+                                        height={150}
+                                        className="relative w-auto h-28 rounded-md object-cover"
+                                    />
+                                    {(file.uploading || file.error) && (
+                                        <div className="absolute inset-0 rounded-md flex flex-col items-center justify-center text-center text-xs font-semibold bg-black/50 text-white">
+                                            {file.uploading && (
+                                                <>
+                                                    <Loader2 className='animate-spin size-6' />
+                                                    Uploading... {file.uploadProgress}%
+                                                </>
+                                            )}
+                                            {file.error && (
+                                                <div className="text-red-500 text-sm">
+                                                    {file.error}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    <Button
+                                        size="sm"
+                                        variant='secondary'
+                                        className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity gap-1 text-xs w-8 h-8 p-1"
+                                        onClick={() => removeFile(file)}
+                                        aria-label={`Remove ${file.name}`}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                        <ScrollBar orientation='horizontal' />
+                    </ScrollArea>
                     <div className="mt-4">
-                        <ScrollArea className="w-full rounded-md border">
-                            <div className="flex flex-row items-center justify-start gap-4 p-4">
-                                {files.map((file) => (
-                                    <div key={file.id} className="relative group h-28 w-auto flex-shrink-0">
-                                        <Image
-                                            src={file.preview}
-                                            alt={`Food image`}
-                                            width={150}
-                                            height={150}
-                                            className="relative w-auto h-28 rounded-md object-cover"
-                                        />
-                                        {(file.uploading || file.error) && (
-                                            <div className="absolute inset-0 rounded-md flex flex-col items-center justify-center text-center text-xs font-semibold bg-black/50 text-white">
-                                                {file.uploading && (
-                                                    <>
-                                                        <Loader2 className='animate-spin size-6' />
-                                                        Uploading... {file.uploadProgress}%
-                                                    </>
-                                                )}
-                                                {file.error && (
-                                                    <div className="text-red-500 text-sm">
-                                                        {file.error}
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-                                        <Button
-                                            size="sm"
-                                            variant='secondary'
-                                            className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity gap-1 text-xs w-8 h-8 p-1"
-                                            onClick={() => removeFile(file)}
-                                            aria-label={`Remove ${file.name}`}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                            <ScrollBar orientation='horizontal' />
-                        </ScrollArea>
-                        <div className="mt-4">
-                            <Label htmlFor="comment">Name</Label>
-                            <Input
-                                className="w-full p-2 border border-border rounded-md"
-                                placeholder="Give this meal a name (optional)..."
-                                value={name}
-                                onChange={e => setName(e.target.value)}
-                            />
-                        </div>
-                        <div className="mt-4">
-                            <Label htmlFor="comment">Comment</Label>
-                            <Textarea
-                                className="w-full p-2 border border-border rounded-md"
-                                placeholder="Add comments or notes about your meal that will help predictions (optional)"
-                                value={comment}
-                                onChange={e => setComment(e.target.value)}
-                            />
-                        </div>
-                        <Button
-                            className="w-full mt-4"
-                            onClick={uploadFiles}
-                            disabled={uploading}
-                        >
-                            {uploading ? 'Analyzing...' : `Analyze ${files.length} Food Image${files.length > 1 ? 's' : ''}`}
-                        </Button>
+                        <Label htmlFor="comment">Name</Label>
+                        <Input
+                            className="w-full p-2 border border-border rounded-md text-base placeholder:text-base"
+                            placeholder="Give this meal a name (optional)..."
+                            defaultValue={name}
+                            onChange={e => setName(e.target.value)}
+                        />
                     </div>
-                )}
-            </div>
+                    <div className="mt-4">
+                        <Label htmlFor="comment">Comment</Label>
+                        <Textarea
+                            className="w-full p-2 border border-border rounded-md text-base placeholder:text-base"
+                            placeholder="Add comments or notes about your meal that will help predictions (optional)"
+                            defaultValue={comment}
+                            onChange={e => setComment(e.target.value)}
+                            rows={5}
+                        />
+                    </div>
+                    <Button
+                        variant='secondary'
+                        className="text-white font-semibold w-full mt-4 border-border border-1 bg-[linear-gradient(to_right,theme(colors.emerald.500),theme(colors.sky.500),theme(colors.indigo.500),theme(colors.sky.500),theme(colors.emerald.500))] animate-gradient bg-[length:200%_auto]"
+                        onClick={uploadFiles}
+                        disabled={uploading}
+                    >
+                        <ScanBarcode className="h-4 w-4" />
+                        {uploading ? 'Scanning...' : `Scan ${files.length} Food Image${files.length > 1 ? 's' : ''}`}
+                    </Button>
+                </div>
+            )}
         </div>
     )
 }
