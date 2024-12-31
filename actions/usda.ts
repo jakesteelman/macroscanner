@@ -26,6 +26,11 @@ interface SearchUSDAFoodsParams {
      * Defaults to 5.
      */
     match_count?: number;
+    /**
+     * Require density in the search results.
+     * Defaults to false.
+     */
+    require_density?: boolean;
 }
 
 /**
@@ -56,7 +61,8 @@ export const searchUSDAFoods = async ({
     query_text,
     query_embedding,
     match_threshold = 0.5,
-    match_count = 5
+    match_count = 5,
+    require_density = false
 }: SearchUSDAFoodsParams): Promise<SearchUSDAFoodsResult> => {
 
     const supabase = await createClient();
@@ -95,6 +101,7 @@ export const searchUSDAFoods = async ({
         query_embedding: JSON.stringify(embedding),
         match_count,
         match_threshold,
+        require_density
     })
 
     // TODO: Function should return usage data as well.
