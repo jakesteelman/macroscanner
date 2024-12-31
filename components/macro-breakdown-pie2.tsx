@@ -97,8 +97,8 @@ export function MacroBreakdownPie({ nutritionFacts }: { nutritionFacts: Omit<USD
                                     )}
                                 />
                             }
-                            cursor={false}
-                            defaultIndex={1}
+
+                            cursor={true}
                         />
                         <Pie
                             data={chartData}

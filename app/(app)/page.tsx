@@ -8,7 +8,7 @@ import SupabaseImage from "@/components/supabase-image";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ArrowRight, MoreHorizontal } from "lucide-react";
+import { ArrowRight, GalleryVerticalEnd, MoreHorizontal } from "lucide-react";
 import EntryCardSkeleton from "@/components/loading/entry-card-skeleton";
 
 export default async function JournalPage() {
@@ -49,7 +49,7 @@ export default async function JournalPage() {
 async function JournalEntries() {
     const entries = await getEntries()
 
-    return (
+    return (entries && entries.length > 0) ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {entries.map((entry) => (
                 <Link key={entry.id} href={`/entries/${entry.id}`} className="block">
@@ -92,6 +92,18 @@ async function JournalEntries() {
                     </Card>
                 </Link>
             ))}
+        </div>
+    ) : (
+        <div className="bg-muted rounded-lg p-16 text-center transition-colors text-muted-foreground flex flex-col items-center justify-center gap-2">
+            <GalleryVerticalEnd className="size-8 mx-auto" />
+            <div>
+                <h3 className="font-medium">
+                    No entries found
+                </h3>
+                <p className="text-sm">
+                    Get started by adding your first entry
+                </p>
+            </div>
         </div>
     )
 }

@@ -14,7 +14,7 @@ const Footer = ({
 
     return (
         <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-6" {...props}>
-            <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
+            <div className="w-full max-w-5xl flex flex-col items-start justify-start md:flex-row md:justify-between md:items-center p-3 px-5 text-sm">
                 <p className='text-muted-foreground'>
                     &copy; {new Date().getFullYear()} Macroscanner. All rights reserved.
                 </p>
