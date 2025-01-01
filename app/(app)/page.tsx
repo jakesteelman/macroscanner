@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import Link from "next/link";
@@ -10,23 +9,22 @@ import { format } from "date-fns";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRight, GalleryVerticalEnd, MoreHorizontal } from "lucide-react";
 import EntryCardSkeleton from "@/components/loading/entry-card-skeleton";
+import { getSubscribedUser } from "@/actions/user";
 
 export default async function JournalPage() {
 
-    const supabase = await createClient();
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getSubscribedUser();
 
     if (!user) {
         return redirect("/sign-in");
     }
 
+    console.log('user is member', user.isMember)
+
     return (
         <div className="container mx-auto p-0 space-y-6">
             <div className="w-full">
-                <Dropzone />
+                <Dropzone isAllowed={user.isMember} />
             </div>
             <div className="space-y-4">
                 <div className="flex flex-row items-center justify-between">

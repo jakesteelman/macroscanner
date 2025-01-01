@@ -1,15 +1,16 @@
 // api/v1/predict/route.ts
+import OpenAI from "openai";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
-import { uploadPhotos, getUploadedPhoto } from "@/actions/photos";
-import { createBlankEntry, getEntry } from "@/actions/entries";
+import { getUploadedPhoto } from "@/actions/photos";
+import { createBlankEntry } from "@/actions/entries";
 import { chooseUSDAItem, predict } from "@/actions/predict";
 import { PredictRequest, PredictResponse } from "@/types/predict";
 import { createPredictions } from "@/actions/predictions";
 import { TablesInsert } from "@/types/database.types";
-import OpenAI from "openai";
 import { searchUSDAFoods } from "@/actions/usda";
 import { VOLUME_UNITS } from "@/lib/utils/conversion";
+import { getSubscribedUser } from "@/actions/user";
 
 export async function POST(request: Request) {
     const supabase = await createClient();
@@ -18,16 +19,23 @@ export async function POST(request: Request) {
     try {
         const { fileIds, name, comment } = await request.json() as PredictRequest;
 
-        // Authenticate user
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        if (authError || !user) {
+        const user = await getSubscribedUser();
+
+        if (!user) {
             return NextResponse.json<PredictResponse>(
-                { success: false, error: "Unauthorized" },
+                { success: false, error: { reason: "Unauthorized", message: "User is not authenticated." } },
                 { status: 401 }
             );
         }
 
-        const entryName = name ?? `Entry ${new Date().toLocaleString()}`;
+        if (!user.isMember) {
+            return NextResponse.json<PredictResponse>(
+                { success: false, error: { reason: "NotSubscribed", message: "User is not a current subscriber." } },
+                { status: 403 }
+            );
+        }
+
+        const entryName = name ?? `Untitled Entry`;
 
         const entry = await createBlankEntry({
             user_id: user.id,
@@ -186,7 +194,12 @@ export async function POST(request: Request) {
 
         // General error response
         return NextResponse.json<PredictResponse>(
-            { success: false, error: "An unexpected error occurred. Details: " + JSON.stringify(error) },
+            {
+                success: false,
+                error: {
+                    message: "An unexpected error occurred. Details: " + JSON.stringify(error)
+                }
+            },
             { status: 500 }
         );
     }

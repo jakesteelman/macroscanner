@@ -1,5 +1,3 @@
-import { Tables } from "@/types/database.types";
-
 export interface PredictRequest {
     /** Array of file IDs representing the uploaded photos */
     fileIds: string[];
@@ -11,11 +9,16 @@ export interface PredictRequest {
     entryId?: string;
 }
 
+export type PredictResponseErrorReason = "Unauthorized" | "NotSubscribed" | "Unknown"
+
 export interface PredictResponse {
     /** Whether or not the prediction was successful. */
     success: boolean;
     /** If unsuccessful, the error encountered. */
-    error?: string;
+    error?: {
+        reason?: PredictResponseErrorReason;
+        message: string;
+    };
     /** If successful, the ID of the completed entry. */
     entryId?: string;
 }

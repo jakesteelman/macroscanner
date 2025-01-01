@@ -9,11 +9,12 @@ import Image from 'next/image'
 import axios from 'axios'
 import { Textarea } from './ui/textarea'
 import { Label } from './ui/label'
-import { fileToBase64 } from '@/lib/utils'
 import { PredictRequest, PredictResponse } from '@/types/predict'
 import { Input } from './ui/input'
 import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation'
+import { toast } from 'sonner'
+import Link from 'next/link'
 
 interface FileWithPreview extends File {
     id: string;
@@ -25,7 +26,7 @@ interface FileWithPreview extends File {
     fileId?: string;
 }
 
-export function Dropzone() {
+export function Dropzone({ isAllowed = true }: { isAllowed: boolean }) {
     const [files, setFiles] = useState<FileWithPreview[]>([])
     const [comment, setComment] = useState<string>()
     const [name, setName] = useState<string>()
@@ -102,6 +103,18 @@ export function Dropzone() {
     };
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
+
+        if (!isAllowed) {
+            return toast.error('You aren\'t a Macroscanner member!', {
+                richColors: true,
+                description() {
+                    return (
+                        <span>Please subscribe <Link className='border-b border-current' href='/subscribe'>here</Link> to use this feature.</span>
+                    );
+                },
+            });
+        }
+
         const newFiles = acceptedFiles.map(file => {
             const fileWithPreview: FileWithPreview = Object.assign(file, {
                 id: uuidv4(),
@@ -151,18 +164,34 @@ export function Dropzone() {
                 name
             };
 
-            const response = await axios.post<PredictResponse>('/api/v1/predict', body);
+            const response = await axios.post<PredictResponse>('/api/v1/predict', body, {
+                validateStatus: (status) => status < 500 // Accept any status < 500 as a valid response
+            });
 
-            if (response.data.success) {
-                router.push(`/entries/${response.data.entryId}`);
+            const data = response.data;
+
+            if (data.success) {
+                router.push(`/entries/${data.entryId}`);
                 setFiles([]);
-                setUploading(false);
             } else {
-                throw new Error(response.data.error);
+                if (data.error?.reason === 'NotSubscribed') {
+                    toast.error('You aren\'t a Macroscanner member!', {
+                        richColors: true,
+                        description() {
+                            return (
+                                <span>Please subscribe <Link className='border-b border-current' href='/subscribe'>here</Link> to use this feature.</span>
+                            );
+                        },
+                    });
+                } else if (data.error?.reason === 'Unauthorized') {
+                    toast.error('You must be logged in to use this feature.');
+                } else {
+                    throw new Error(data.error?.message || 'Unknown error occurred');
+                }
             }
-
         } catch (error) {
             console.error(error);
+            toast.error('An error occurred while processing your request. Please contact support if the issue persists.');
         } finally {
             setUploading(false);
         }
