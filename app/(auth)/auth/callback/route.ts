@@ -12,19 +12,23 @@ export async function GET(request: Request) {
 
         if (!error) {
 
+            // Add a trial end date for the user if not present.
             if (!data.user.user_metadata.trial_end_utc) {
-                console.log('user does not have trial end date set, setting it now')
-                // Supabase doesn't let you add data to the user_metadata if a user uses oauth. so we have do to it here
-                const updateUserResult = await supabase.auth.updateUser({
+                // Supabase doesn't let you set user_metadata when a user signs *up* with an
+                // Oauth provider, so we have to update this after the fact.
+                const trialEnd = new Date()
+                trialEnd.setUTCDate(trialEnd.getUTCDate() + 14)
+
+                await supabase.auth.updateUser({
                     data: {
-                        trial_end_utc: new Date().toISOString()
+                        trial_end_utc: trialEnd.toISOString()
                     }
                 })
-                console.log('updateUserResult', updateUserResult)
             }
 
             const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
             const isLocalEnv = process.env.NODE_ENV === 'development'
+
             if (isLocalEnv) {
                 // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
                 return NextResponse.redirect(`${origin}${next}`)
