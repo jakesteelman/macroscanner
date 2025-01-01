@@ -1,5 +1,3 @@
-// page.tsx under the desired route, example: /pricing
-
 import { getProducts, getSubscription } from "@/actions/subscriptions";
 import { getUser } from "@/actions/user";
 import Pricing from "@/components/pricing";

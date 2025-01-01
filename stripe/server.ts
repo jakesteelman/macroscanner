@@ -48,6 +48,7 @@ export async function checkoutWithStripe(
             allow_promotion_codes: true,
             billing_address_collection: 'required',
             customer,
+            payment_method_types: ['card'],
             customer_update: {
                 address: 'auto'
             },

@@ -1,5 +1,3 @@
-import type { Tables } from '@/types/database.types';
-
 export const getURL = (path: string = '') => {
     // Check if NEXT_PUBLIC_SITE_URL is set and non-empty. Set this to your site URL in production env.
     let url =
@@ -93,3 +91,14 @@ export const getErrorRedirect = (
         disableButton,
         arbitraryParams
     );
+
+/**
+ * Check user's trial period status
+ * 
+ * @param trialPeriodEnd ISO string (UTC) of the trial period end date
+ * @returns "expired" if the trial period has ended, "active" otherwise
+ */
+export const trialStatus = (trialPeriodEnd: string): "expired" | "active" => {
+    const userTrialPeriodEnd = new Date(trialPeriodEnd).getTime();
+    return userTrialPeriodEnd > Date.now() ? "active" : "expired";
+}

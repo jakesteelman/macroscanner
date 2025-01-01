@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getUser } from "./user";
+import { getSubscribedUser, getUser } from "./user";
 import sharp from "sharp";
 
 /**
@@ -33,7 +33,15 @@ export async function uploadPhotos({ images, entryId }: UploadPhotosParams) {
     }
 
     const supabase = await createClient();
-    const user = await getUser();
+    const user = await getSubscribedUser();
+
+    if (!user) {
+        throw new Error("User is not authenticated");
+    }
+
+    if (!user.isMember) {
+        throw new Error("User is not a current subscriber");
+    }
 
     const processedPhotos = await Promise.all(
         images.map(async (base64, index) => {

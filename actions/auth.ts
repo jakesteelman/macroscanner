@@ -21,6 +21,10 @@ export const signUpAction = async (formData: FormData) => {
         );
     }
 
+    // Calculate trial end date (14 days from now in UTC)
+    const trialEnd = new Date();
+    trialEnd.setUTCDate(trialEnd.getUTCDate() + 14);
+
     const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -28,6 +32,7 @@ export const signUpAction = async (formData: FormData) => {
             emailRedirectTo: `${origin}/auth/callback`,
             data: {
                 full_name: fullName,
+                trial_end_utc: trialEnd.toISOString(),
             }
         },
     });

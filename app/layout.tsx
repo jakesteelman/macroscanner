@@ -3,6 +3,7 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import localFont from 'next/font/local';
 import type { Metadata, Viewport } from 'next'
+import { Toaster } from "sonner";
 
 const defaultUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? `${process.env.NEXT_PUBLIC_SITE_URL}`
@@ -60,6 +61,7 @@ export default function RootLayout({
                     <TooltipProvider>
                         {children}
                     </TooltipProvider>
+                    <Toaster position="top-center" />
                 </ThemeProvider>
             </body>
         </html>

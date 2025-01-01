@@ -2,7 +2,7 @@ import { BillingInterval } from '@/types/pricing.types';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 
-interface BillingToggleProps {
+interface BillingToggleProps extends React.HTMLAttributes<HTMLDivElement> {
     intervals: (BillingInterval | undefined)[];
     billingInterval: BillingInterval;
     onIntervalChange: (interval: BillingInterval) => void;
@@ -11,10 +11,11 @@ interface BillingToggleProps {
 export function BillingToggle({
     intervals,
     billingInterval,
-    onIntervalChange
+    onIntervalChange,
+    ...props
 }: BillingToggleProps) {
     return (
-        <div className="relative grid grid-cols-2 gap-2 self-center mt-6 rounded-lg p-1.5 sm:mt-8 border">
+        <div {...props} className={cn(props.className, "relative grid grid-cols-2 gap-2 rounded-lg p-1.5 border")} >
             {intervals.includes('month') && (
                 <button
                     onClick={() => onIntervalChange('month')}
@@ -36,7 +37,7 @@ export function BillingToggle({
                     )}
                 >
                     Annual
-                    <Badge className="bg-gradient-to-r from-[#926c15] to-[#b69121] dark:from-[#a47e1b] dark:to-[#c9a227] border-0 text-background">Save 16%</Badge>
+                    <Badge>Save 16%</Badge>
                 </button>
             )}
         </div>
