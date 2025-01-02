@@ -40,8 +40,9 @@ export async function predict({ images, comment }: PredictRequest): Promise<{ ob
     };
 
     const { object, usage } = await generateObject({
-        model: openai('gpt-4o-mini'),
+        model: openai('gpt-4o'),
         schema: PredictionSchema,
+        temperature: 0.02,
         messages: [
             systemMessage,
             userMessage
