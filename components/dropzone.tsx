@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 interface FileWithPreview extends File {
     id: string;
@@ -27,6 +28,7 @@ interface FileWithPreview extends File {
 }
 
 export function Dropzone({ isAllowed = true }: { isAllowed: boolean }) {
+    const isMobile = useIsMobile()
     const [files, setFiles] = useState<FileWithPreview[]>([])
     const [comment, setComment] = useState<string>()
     const [name, setName] = useState<string>()
@@ -203,7 +205,7 @@ export function Dropzone({ isAllowed = true }: { isAllowed: boolean }) {
                 <div
                     {...getRootProps()}
                     className={cn(
-                        `border-2 border-dashed rounded-lg px-16 py-32 md:p-16 text-center cursor-pointer transition-colors`,
+                        `border-2 border-dashed rounded-lg px-8 py-16 md:py-32 md:p-16 text-center cursor-pointer transition-colors`,
                         isDragActive ? 'border-primary bg-primary/10' : 'border-border'
                     )}
                 >
@@ -212,7 +214,7 @@ export function Dropzone({ isAllowed = true }: { isAllowed: boolean }) {
                     <p className="mt-2 text-base text-muted-foreground">
                         {isDragActive
                             ? "Drop the images here"
-                            : "Drag 'n' drop food images here, or click to select"}
+                            : isMobile ? "Tap to capture or upload photos" : "Drag 'n' drop food images here, or click to select"}
                     </p>
                     <p className="mt-1 text-xs lg:text-sm text-muted-foreground">
                         Upload up to 10 images
@@ -221,7 +223,8 @@ export function Dropzone({ isAllowed = true }: { isAllowed: boolean }) {
             ) : (
                 <Button variant='outline' className='w-full border-2 border-border border-dashed' onClick={() => setShowDropzone(true)}>
                     <Plus className='h-4 w-4' />
-                    Add more</Button>
+                    Add more
+                </Button>
             )}
             {files.length > 0 && (
                 <div className="mt-4">

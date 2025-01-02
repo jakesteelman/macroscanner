@@ -43,14 +43,14 @@ export default async function NavigationBar({
         <div>
             {(user && userTrialPeriodEnded && !userHasSubscription) ? (
                 <Banner>
-                    Your trial has ended. Please <Link href="/subscribe">subscribe</Link> to continue using Macroscanner.
+                    Your trial has ended. <Link href="/subscribe">Subscribe</Link> to continue using Macroscanner.
                 </Banner>
             ) : user && !userTrialPeriodEnded && !userHasSubscription ? (
                 <Banner>
-                    Your trial ends in {stringFormattedTimeUntilTrialEnds}. Please <Link
+                    Your trial ends in {stringFormattedTimeUntilTrialEnds}. <Link
                         href="/subscribe?utm_source=trial_ended_banner&utm_medium=macroscanner&utm_campaign=trial_ended_banner"
                         className='border-b border-current'
-                    >subscribe</Link> to continue using Macroscanner after your trial ends.
+                    >Subscribe now</Link>
                 </Banner>
             ) : null}
             <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16" {...props}>
