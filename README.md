@@ -23,6 +23,8 @@ I went ahead and built everything out for a minimum viable product, which is wha
 - **Payments**: [Stripe](https://www.stripe.com)
 - **AI**: [OpenAI API](https://platform.openai.com), GPT-4o
 
+Additionally, I used a custom-developed ETL script to get data from USDA FDC into a single table and calculate densities for each item that has a volume measure on it. That code is publicly available under the same license in [this repository](https://github.com/jakesteelman/fdcetl).
+
 ### Why did I use an LLM for the backend?
 
 I used a vision-enabled LLM as the primary "intelligence" of the app because, just in my testing, they generalize fairly well for the task of categorizing food and have minimal effort to get up to speed with. 
