@@ -1,96 +1,60 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Macroscanner 📷🍏
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+Macroscanner is an LLM-powered food macronutrient prediction tool. It uses GPT-4o to predict the food items and quantities from multiple photos in a JSON format, then searches these in a vector-enabled copy of the [USDA's Food Data Central](https://fdc.nal.usda.gov/download-datasets) database, which is a publicly available dataset, to get macronutrient information for each item.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+I originally intended for Macroscanner to be a digital product, but I've determined the idea is not viable enough for me to pursue it, so I've open sourced my work up on the Mininum Viable Product (MVP).
 
-## Features
+## Background
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+Calorie tracking is something I try to do every day so I constantly have a pulse on my health and can ensure I'm on target with my fitness goals. However, tracking meals or snacks during or after consumption them can sometimes be inconvenient, impolite, or distracting, but after consuming a meal or a snack, it's sometimes hard to remember what you ate, and your ability to estimate quantities accurately diminishes with each passing hour. 
 
-## Demo
+To mitigate this, I've resulted to just snapping a quick photo of what I eat anytime I don't want to track it in the app right then. Before bed at the end of the day (or when I wake up the next day) I'll try to estimate my intake based on the photos in my camera roll and log it retrospectively in my favorite nutrition tracker, MacroFactor. 
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+Something I've noticed over the past 6-8 months of doing this is that I often go long stretches (2-3 days even) where I'm not logging anything or checking the app at all. This isn't what I want, as I'm eating based on mental notes of what I've already had that day, thus making it harder to stick to my goal. Sometimes, I'd go back and notice I went way over or under on my targets.
 
-## Deploy to Vercel
+## My idea
 
-Vercel deployment will guide you through creating a Supabase account and project.
+What if there was a way to get the macronutrients just from taking a photo (or photos) of your food? The app could detect the type of ingredients present in the photos, and estimate the mass or volume of each ingredient present. You'd snap a picture, and have a running tally of the nutrition from what you ate on any given day. It wouldn't be a full blown nutrition tracking app - you'd just use it as a utility to help you track nutrition more efficiently.
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+I went ahead and built everything out for a minimum viable product, which is what you see in this repo. It uses the following tech stack:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+- **Frontend**: [Next.js 15](https://github.com/vercel/next.js), using [this template](https://github.com/vercel/next.js/tree/canary/examples/with-supabase).
+- **Backend**: [Supabase](https://github.com/supabase/supabase)
+- **Payments**: [Stripe](https://www.stripe.com)
+- **AI**: [OpenAI API](https://platform.openai.com), GPT-4o
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+### Why did I use an LLM for the backend?
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+I used a vision-enabled LLM as the primary "intelligence" of the app because, just in my testing, they generalize fairly well for the task of categorizing food and have minimal effort to get up to speed with. 
 
-## Clone and run locally
+Had I trained my own model (which I considered doing) it 1. would have taken a long time to gather data, train, test, and refine it to be good enough for production use, and 2. the resulting model could be biased toward a predominant genre or culture of food, or not generalize as well. 
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+An LLM is probably not the best quantity estimation model. Perhaps, to achieve SOTA results, you'd need some sort of depth estimation model and a segmentation model. Generate a depth map of the scene, get a segmentation mask for a food item, apply that item's segmentation mask to the depth map to get a depth map of the food item, generate a point cloud, compute its volume, multiply the volume of the point cloud by a known density of that food to get the mass of the food. 
 
-2. Create a Next.js app using the Supabase Starter template npx command
+I decided against this approach for quantity estimation and just deferred to the LLM. I would likely be chasing only marginal gains for exponentially more time invested, and that proposed quantity estimator is very likely heavily flawed. Also, since each step of that process has some error rate, the overall error rate of the system vastly increases as you move through it.
 
-   ```bash
-   npx create-next-app -e with-supabase
-   ```
+## Why I abandoned it
 
-3. Use `cd` to change into the app's directory
+For starters, I made the cardinal startup mistake of not evaluating the market before investing time and resources into building a product. 
 
-   ```bash
-   cd name-of-new-app
-   ```
+After I finished the MVP, I found out that MyFitnessPal (the biggest nutrition tracking app) already has this functionality integrated directly into their food tracker app. Lifesum also has a similar feature. Additionally, I neglected to do any other research to see if this was a problem other people experienced, or if it was just me.
 
-4. Rename `.env.example` to `.env.local` and update the following:
+Even if you assume this is a real problem that people face, since a photo journaling feature is "low hanging fruit" for other nutrition tracking apps to implement (it's a prompt and a model with minimal orchestration) I figured it wouldn't be long before nutrition trackers apps comprising 80-90% of the market share had some variation of photo journaling functionality. 
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+As a solopreneur, my moat right out of the gate would have been extremely narrow. You'd still have to purchase Macroscanner _in addition to_ another nutrition tracker. I had essentially developed a feature, not a product. And, with consumers already inundated with subscription services, it looked like marketing this thing was a losing battle.
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+It didn't look cost effective either. I estimated my variable costs to be ~20-30¢ per image. At my usage level (likely higher than most), I'd have to price it at $6 per month just to make a 50% gross profit. I didn't want to mess with hosting directly on AWS or self-hosting Supabase, so the steep Vercel and Supabase pricing at scale worried me, especially with a 50% gross profit to cover that.
 
-5. You can now run the Next.js local development server:
+## Lessons learned
 
-   ```bash
-   npm run dev
-   ```
+1. Research the market before starting to build a product. A few competitors is fine, but make sure there's actually a need for the product.
+2. Start with a product and build features, not the other way around. Feature ≠ Product.
+3. Simplicity is better at first (LLMs vs custom deep learning & computer vision models).
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+## Conclusion
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+I decided to open source the project to demonstrate an example of how I can solve a unique problem (even if it isn't a real problem) by utilizing data and AI. Perhaps this repository will inspire someone else to create something similar, or inspire a different use case or architecture in their own application. 
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+On to the next one!
 
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+© 2025 Jake Steelman
